@@ -1,9 +1,9 @@
 import React from 'react';
-export default function Layout() {
+export default function Sidebar() {
     return (
-        <div className="flex">
+        <div>
             {/* Sidebar */}
-            <aside id="sidebar-multi-level-sidebar" className="fixed top-16 left-0 z-40 w-1/5 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
+            <aside id="sidebar-multi-level-sidebar" className="col-span-2 h-screen border-r-[1] border-mid-dark transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
                 <div className="h-full px-3 py-4 overflow-y-auto bg-light text-mid-dark">
                     <ul className="space-y-3 text-xl">
                         <li>

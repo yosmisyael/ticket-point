@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { NextFont } from "next/dist/compiled/@next/font";
 import { Poppins } from "next/font/google";
+import Link from "next/link";
 
 const poppins: NextFont = Poppins({
     weight: ['200', '400', '800'],
@@ -9,11 +10,11 @@ const poppins: NextFont = Poppins({
 
 export default function Navbar() {
     return (
-        <nav className="bg-light">
+        <nav className="bg-light shadow-sm col-span-full">
             <div className="max-w-screen-3xl flex flex-wrap items-center justify-between mx-auto px-12 p-4">
-                <a href="/public" className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}>
+                <Link href="/" className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}>
                     <span className="self-center text-3xl font-bold whitespace-nowrap"><span className="text-primary-dark">Ticket</span><span className="text-alternative-mid">Point</span></span>
-                </a>
+                </Link>
                 <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
                     <button
                         type="button"
@@ -40,16 +41,16 @@ export default function Navbar() {
                         </div>
                         <ul className="py-2" aria-labelledby="user-menu-button">
                             <li>
-                                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
+                                <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</Link>
                             </li>
                             <li>
-                                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</a>
+                                <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</Link>
                             </li>
                             <li>
-                                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Earnings</a>
+                                <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Earnings</Link>
                             </li>
                             <li>
-                                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>
+                                <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</Link>
                             </li>
                         </ul>
                     </div>

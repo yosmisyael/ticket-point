@@ -1,10 +1,10 @@
-import Layout from "../layouts/page";
+import Layout from "@/components/layouts/dashboard";
 
 
 export default function Coba() {
     return (
         <Layout>
-            <div className="flex-1 p-4 sm:ml-64">
+            <div className="">
                 <h1>Hallo Yosev</h1>
             </div>
         </Layout>

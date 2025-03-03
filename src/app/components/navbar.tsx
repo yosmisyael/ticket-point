@@ -1,18 +1,18 @@
 import Image from "next/image";
+import { NextFont } from "next/dist/compiled/@next/font";
+import { Poppins } from "next/font/google";
+
+const poppins: NextFont = Poppins({
+    weight: ['200', '400', '800'],
+    subsets: ['latin'],
+});
 
 export default function Navbar() {
     return (
-        <nav className="bg-white border-gray-200 dark:bg-gray-900">
+        <nav className="bg-light">
             <div className="max-w-screen-3xl flex flex-wrap items-center justify-between mx-auto px-12 p-4">
-                <a href="https://flowbite.com/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                    {/* <Image
-                        src="https://flowbite.com/docs/images/logo.svg"
-                        className="h-8"
-                        alt="Flowbite Logo"
-                        width={32}
-                        height={32}
-                    /> */}
-                    <span className="self-center text-3xl font-semibold whitespace-nowrap dark:text-white"><span className="text-blue-600">Ticket</span> <span className="text-yellow-400">Point</span></span>
+                <a href="https://flowbite.com/" className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}>
+                    <span className="self-center text-3xl font-bold whitespace-nowrap"><span className="text-primary-dark">Ticket</span><span className="text-alternative-mid">Point</span></span>
                 </a>
                 <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
                     <button

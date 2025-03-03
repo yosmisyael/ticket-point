@@ -5,11 +5,11 @@ interface LayoutProps {
     children: React.ReactNode;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function DashboardLayout({ children }: LayoutProps) {
     return (
-        <div>
-            <Navbar />
-            <div className="flex flex-1 pt-16">
+        <>
+            <div className="grid grid-cols-5">
+                <Navbar />
                 {/* load sidebar */}
                 <Sidebar />
                 {/* main content */}
@@ -17,6 +17,6 @@ export default function Layout({ children }: LayoutProps) {
                     {children}
                 </main>
             </div>
-        </div>
+        </>
     )
 }

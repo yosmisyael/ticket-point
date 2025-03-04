@@ -17,9 +17,8 @@ export default function Sidebar() {
                                 </svg>
                                 <span className="ms-3">Home</span>
                             </Link>
-                        </li>
-                        <li>
-                            <Link href="/event"
+                        </li>                        <li>
+                            <Link href="/dashboard/events"
                                className="flex items-center p-2 text-mid-dark rounded-lg hover:bg-white hover:text-dark group">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-dark">

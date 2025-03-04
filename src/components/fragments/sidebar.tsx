@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from "next/link";
 export default function Sidebar() {
     return (
         <div>
@@ -7,7 +8,7 @@ export default function Sidebar() {
                 <div className="h-full px-3 py-4 overflow-y-auto bg-light text-mid-dark">
                     <ul className="space-y-3 text-xl">
                         <li>
-                            <a href="#"
+                            <Link href="/dashboard"
                                className="flex items-center p-2 text-mid-dark rounded-lg hover:bg-white hover:text-dark group">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-dark">
@@ -15,10 +16,10 @@ export default function Sidebar() {
                                           d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
                                 </svg>
                                 <span className="ms-3">Home</span>
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a href="#"
+                            <Link href="/dashboard/events"
                                className="flex items-center p-2 text-mid-dark rounded-lg hover:bg-white hover:text-dark group">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-dark">
@@ -26,10 +27,10 @@ export default function Sidebar() {
                                           d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
                                 </svg>
                                 <span className="ms-3">Events</span>
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="/dashboard/organization"
                                className="flex items-center p-2 text-mid-dark rounded-lg hover:bg-white hover:text-dark group">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-dark">
@@ -40,7 +41,7 @@ export default function Sidebar() {
                             </a>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="/dashboard/reports"
                                className="flex items-center p-2 text-mid-dark rounded-lg hover:bg-white hover:text-dark group">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-dark">

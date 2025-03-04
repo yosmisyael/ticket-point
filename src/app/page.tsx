@@ -722,7 +722,7 @@ function Page() {
 
        
 
-        {/* Personalization Section */}
+        {/* PersonalizationSection */}
         <section className="px-6 lg:px-12 py-8 lg:py-12 mt-16 lg:mt-24 text-black rounded-xl border border-zinc-200 bg-gradient-to-br from-violet-50 to-zinc-100 w-full">
           <div className="flex flex-wrap justify-between items-center w-full">
             <h2 className="text-2xl lg:text-3xl font-bold tracking-wide">

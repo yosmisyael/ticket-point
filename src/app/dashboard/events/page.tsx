@@ -1,4 +1,3 @@
-import DashboardLayout from "@/app/dashboard/layout";
 import Image from "next/image";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 

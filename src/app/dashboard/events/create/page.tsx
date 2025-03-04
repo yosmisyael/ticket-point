@@ -1,6 +1,5 @@
 'use client'
 
-import DashboardLayout from "@/app/dashboard/layout";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Footer from "@/components/fragments/dashboard/Footer";
 // import Image from "next/image";

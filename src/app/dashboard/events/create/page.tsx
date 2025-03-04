@@ -1,13 +1,13 @@
 'use client'
 
-import DashboardLayout from "@/components/layouts/dashboard";
+import DashboardLayout from "@/app/dashboard/layout";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Footer from "@/components/fragments/dashboard/Footer";
 // import Image from "next/image";
 
 export default function CreateEvent() {
     return (
-        <DashboardLayout>
+        <>
             <div className="p-5 select-none">
                 <Breadcrumb/>
                 <div className="flex flex-col my-5 gap-12 mb-36">
@@ -92,7 +92,7 @@ export default function CreateEvent() {
                     {/* location */}
                     <section className="border-2 border-mid-light rounded-xl w-2/3 p-5 hover:border-primary-mid">
                         <h2 className="text-2xl font-semibold">Location</h2>
-                        <form method="POST" className="mt-6 flex gap-4 select-none">
+                        <div className="mt-6 flex gap-4 select-none">
                             <div>
                                 <input type="radio" name="event-type" id="onsite" className="peer hidden"/>
                                 <label htmlFor="onsite"
@@ -132,7 +132,7 @@ export default function CreateEvent() {
                                     Hybrid
                                 </label>
                             </div>
-                        </form>
+                        </div>
                         <label htmlFor="location"
                                className="block mt-6 text-lg font-medium text-dark">Location</label>
                         <input type="text" id="location"
@@ -171,6 +171,6 @@ export default function CreateEvent() {
                 </div>
             </div>
             <Footer/>
-        </DashboardLayout>
+        </>
     )
 }

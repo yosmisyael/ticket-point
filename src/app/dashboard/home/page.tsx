@@ -1,4 +1,4 @@
-import DashboardLayout from "@/components/layouts/dashboard";
+import DashboardLayout from "@/app/dashboard/layout";
 import Image from "next/image";
 
 export default function DashboardHome() {
@@ -24,7 +24,6 @@ export default function DashboardHome() {
 
     const name = "King Yosev";
     return (
-        <DashboardLayout>
             <div className="p-10">
                 <div className="mb-10">
                     <h1 className="mx-2 text-6xl font-semibold font-inter text-[var(--color-dark)]">Welcome, {name} </h1>
@@ -51,6 +50,5 @@ export default function DashboardHome() {
                     ))}
                 </div>
             </div>
-        </DashboardLayout>
     );
 }

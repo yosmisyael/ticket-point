@@ -1,4 +1,4 @@
-import DashboardLayout from "@/components/layouts/dashboard";
+import DashboardLayout from "@/app/dashboard/layout";
 import Image from "next/image";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
@@ -24,7 +24,7 @@ export default function Events() {
     };
 
     return (
-        <DashboardLayout>
+        <>
             <div className="p-5">
                 <Breadcrumb />
                 <div className="mb-10">
@@ -52,6 +52,6 @@ export default function Events() {
                     ))}
                 </div>
             </div>
-        </DashboardLayout>
+        </>
     )
 }

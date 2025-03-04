@@ -1,7 +1,8 @@
 import DashboardLayout from "@/components/layouts/dashboard";
 import Image from "next/image";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
-export default function EventsPage() {
+export default function Events() {
     const events = [
         {
             name: "TechVision 2025",
@@ -24,23 +25,23 @@ export default function EventsPage() {
 
     return (
         <DashboardLayout>
-            <div className="p-10">
+            <div className="p-5">
+                <Breadcrumb />
                 <div className="mb-10">
-                    <h1 className="mx-2 text-6xl font-semibold font-inter text-[var(--color-dark)]">Events </h1>
-                    {/* <p className="mx-2 text-xl my-5 ml-5 font-normal font-inter text-[var(--color-mid-dark)]">Rencanakan dan koordinasikan acara tersebut.</p> */}
+                    <h1 className="text-6xl font-semibold font-inter text-[var(--color-dark)]">Events </h1>
                 </div>
                 <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                     {events.map((event, index) => (
-                        <div key={index} className="max-w-sm mx-2 my-2 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                        <div key={index} className="max-w-sm mx-2 my-2 bg-white border border-gray-200 rounded-lg shadow-sm">
                             <a href="#">
                                 <Image className="rounded-t-lg" src={"/1.jpg"} width={500} height={500} alt={event.name} />
                             </a>
                             <div className="p-5">
                                 <a href="#">
-                                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{event.name}</h5>
+                                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.name}</h5>
                                 </a>
-                                <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">{truncateWords(event.description)}</p>
-                                <a href="#" className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                <p className="mb-3 font-normal text-gray-700">{truncateWords(event.description)}</p>
+                                <a href="#" className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                                     Read more
                                     <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />

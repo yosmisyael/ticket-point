@@ -11,7 +11,10 @@ export default function Breadcrumb() {
             {
                 paths.map((path, index) => (
                     <li className="inline-flex items-center capitalize" key={index}>
-                        <Link href={index !== paths.length - 1 ? `/${paths.slice(0, index + 1).join('/')}` : ''}>
+                        <Link href={
+                            index === 0 && path === "dashboard" ? "/dashboard/home" :
+                            index !== paths.length - 1 ? `/${paths.slice(0, index + 1).join('/')}` : ''
+                        }>
                             {path}
                         </Link>
                         {index !== paths.length - 1 && (

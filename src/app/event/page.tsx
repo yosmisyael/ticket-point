@@ -1,7 +1,7 @@
 import DashboardLayout from "@/components/layouts/dashboard";
 import Image from "next/image";
 
-export default function DashboardHome() {
+export default function Home() {
     const events = [
         {
             name: "TechVision 2025",
@@ -17,20 +17,20 @@ export default function DashboardHome() {
         }
     ];
 
+    // Fungsi untuk membatasi deskripsi hingga 20 kata
     const truncateWords = (text: string, maxWords = 18) => {
         const words = text.split(" ");
         return words.length > maxWords ? words.slice(0, maxWords).join(" ") + "..." : text;
     };
 
-    const name = "King Yosev";
     return (
         <DashboardLayout>
             <div className="p-10">
                 <div className="mb-10">
-                    <h1 className="mx-2 text-6xl font-semibold font-inter text-[var(--color-dark)]">Welcome, {name} </h1>
+                    <h1 className="mx-2 text-6xl font-semibold font-inter text-[var(--color-dark)]">Events </h1>
                     {/* <p className="mx-2 text-xl my-5 ml-5 font-normal font-inter text-[var(--color-mid-dark)]">Rencanakan dan koordinasikan acara tersebut.</p> */}
                 </div>
-                <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 ">
+                <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                     {events.map((event, index) => (
                         <div key={index} className="max-w-sm mx-2 my-2 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                             <a href="#">

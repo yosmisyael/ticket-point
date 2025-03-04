@@ -1,5 +1,5 @@
-import Navbar from "@/components/fragments/navbar";
-import Sidebar from "@/components/fragments/sidebar";
+import Navbar from "@/components/fragments/Navbar";
+import Sidebar from "@/components/fragments/Sidebar";
 
 interface LayoutProps {
     children: React.ReactNode;

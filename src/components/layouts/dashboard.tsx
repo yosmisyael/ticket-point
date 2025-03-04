@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 {/* load sidebar */}
                 <Sidebar />
                 {/* main content */}
-                <main className="">
+                <main className="col-span-4 max-h-screen overflow-y-scroll">
                     {children}
                 </main>
             </div>

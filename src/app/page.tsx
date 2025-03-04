@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Country, City } from "country-state-city";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
@@ -28,35 +28,58 @@ const getData = async (slug: string) => {
   }; // Enhanced implementation with more metadata
 };
 function Page() {
-  // Get all countries
+   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+  
   const allCountries = Country.getAllCountries();
-  // Set default country to first in list
-  const [selectedCountry, setSelectedCountry] = useState(
-    allCountries[0]?.isoCode || ""
-  );
-  const [cities, setCities] = useState<typeof City[]>([]);
-  const [selectedCity, setSelectedCity] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Update city list whenever country changes
+  // State untuk negara dan kota yang dipilih
+  const [selectedCountry, setSelectedCountry] = useState(allCountries[0] || null);
+  const [cities, setCities] = useState<typeof City[]>([]);
+
+  // State untuk input autocomplete
+  const [countryInput, setCountryInput] = useState(allCountries[0]?.name || "");
+  const [cityInput, setCityInput] = useState("");
+
+  // State untuk menampilkan dropdown saran
+  const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+
+  // Update daftar kota ketika negara yang dipilih berubah
   useEffect(() => {
     if (selectedCountry) {
-      const cityList = City.getCitiesOfCountry(selectedCountry);
+      const cityList = City.getCitiesOfCountry(selectedCountry.isoCode);
       setCities(cityList || []);
-      setSelectedCity(cityList?.[0]?.name || "");
+      setCityInput(cityList?.[0]?.name || "");
     }
   }, [selectedCountry]);
 
-  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCountry(e.target.value);
+  // Filter saran negara berdasarkan input
+  const filteredCountrySuggestions = allCountries.filter(country =>
+    country.name.toLowerCase().includes(countryInput.toLowerCase())
+  );
+
+  // Filter saran kota berdasarkan input
+  const filteredCitySuggestions = cities.filter(city =>
+    city.name.toLowerCase().includes(cityInput.toLowerCase())
+  );
+
+  const countryInputRef = useRef<HTMLInputElement>(null);
+  const cityInputRef = useRef<HTMLInputElement>(null);
+
+  // Saat memilih saran negara, update input dan negara yang dipilih
+  const handleCountrySelect = (country: typeof allCountries[0]) => {
+    setSelectedCountry(country);
+    setCountryInput(country.name);
+    setShowCountrySuggestions(false);
   };
 
-  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCity(e.target.value);
-  };
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+  // Saat memilih saran kota, update input kota
+  const handleCitySelect = (city: typeof cities[0]) => {
+    setCityInput(city.name);
+    setShowCitySuggestions(false);
   };
   // Ticket point designs with different styles and colors
   const ticketDesigns = [
@@ -353,42 +376,72 @@ function Page() {
         </section>
 
         {/* Location Banner */}
-        <section className="w-full py-10 lg:py-14 px-6 lg:px-16 mt-20 text-xl lg:text-2xl font-medium text-center text-gray-800 border border-gray-200 rounded-2xl shadow-lg bg-gradient-to-r from-indigo-50 via-white to-indigo-50">
+        <section className="w-full py-10 lg:py-14 px-6 lg:px-16 mt-20 text-xl lg:text-2xl font-medium text-center text-gray-800 border border-gray-200 rounded-2xl shadow-lg bg-gradient-to-r from-indigo-50 via-white to-indigo-50 relative">
       <div className="flex flex-col md:flex-row items-center justify-center gap-4">
         <MapPin className="w-8 h-8 text-indigo-600" />
-        <div className="flex flex-col md:flex-row items-center gap-2">
+        <div className="flex flex-col md:flex-row items-center gap-2 relative">
           <span>Browsing events in</span>
-          <div className="flex items-center gap-2">
-            <select
-              value={selectedCountry}
-              onChange={handleCountryChange}
-              className="px-3 py-2 border border-gray-300 rounded-md bg-white text-indigo-600 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {allCountries.map((country) => (
-                <option key={country.isoCode} value={country.isoCode}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedCity}
-              onChange={handleCityChange}
-              className="px-3 py-2 border border-gray-300 rounded-md bg-white text-indigo-600 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {cities.length > 0 ? (
-                cities.map((city) => (
-                  <option key={city.name} value={city.name}>
+          {/* Input Negara */}
+          <div className="relative">
+            <input
+              ref={countryInputRef}
+              type="text"
+              value={countryInput}
+              onChange={(e) => {
+                setCountryInput(e.target.value);
+                setShowCountrySuggestions(true);
+              }}
+              onFocus={() => setShowCountrySuggestions(true)}
+              onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 100)}
+              placeholder="Country"
+              className="px-3 py-2 border border-gray-300 rounded-md bg-white text-indigo-600 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48"
+            />
+            {showCountrySuggestions && filteredCountrySuggestions.length > 0 && (
+              <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 max-h-60 overflow-y-auto rounded-md shadow-lg">
+                {filteredCountrySuggestions.map((country) => (
+                  <li
+                    key={country.isoCode}
+                    className="px-3 py-2 hover:bg-indigo-100 cursor-pointer"
+                    onMouseDown={() => handleCountrySelect(country)}
+                  >
+                    {country.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {/* Input Kota */}
+          <div className="relative">
+            <input
+              ref={cityInputRef}
+              type="text"
+              value={cityInput}
+              onChange={(e) => {
+                setCityInput(e.target.value);
+                setShowCitySuggestions(true);
+              }}
+              onFocus={() => setShowCitySuggestions(true)}
+              onBlur={() => setTimeout(() => setShowCitySuggestions(false), 100)}
+              placeholder="City"
+              className="px-3 py-2 border border-gray-300 rounded-md bg-white text-indigo-600 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48"
+            />
+            {showCitySuggestions && filteredCitySuggestions.length > 0 && (
+              <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 max-h-60 overflow-y-auto rounded-md shadow-lg">
+                {filteredCitySuggestions.map((city, index) => (
+                  <li
+                    key={`${city.name}-${city.stateCode}-${city.latitude}-${city.longitude}-${index}`}
+                    className="px-3 py-2 hover:bg-indigo-100 cursor-pointer"
+                    onMouseDown={() => handleCitySelect(city)}
+                  >
                     {city.name}
-                  </option>
-                ))
-              ) : (
-                <option value="">No cities available</option>
-              )}
-            </select>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
-      {/* Tombol Search di center */}
+      {/* Tombol Search di tengah */}
       <div className="mt-8 flex justify-center">
         <button className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 transition duration-300">
           <Search className="w-5 h-5" />

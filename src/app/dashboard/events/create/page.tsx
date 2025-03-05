@@ -1,9 +1,11 @@
 'use client'
 
-import Breadcrumb from "@/components/ui/Breadcrumb";
-import Footer from "@/components/fragments/dashboard/Footer";
 import { useState } from "react";
 import {Trash, MapPinHouse, TvMinimalPlay, Puzzle, Search, Info} from 'lucide-react'
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import Footer from "@/components/fragments/dashboard/Footer";
+import DatePicker from "@/components/ui/DatePicker";
+import BannerUpload from "@/components/ui/BannerUpload";
 
 interface EventFormat {
     type: string;
@@ -408,6 +410,9 @@ export default function CreateEvent() {
         }
     };
 
+    // Datepicker state
+    const [isOpen, setIsOpen] = useState(false);
+
     return (
         <>
             <div className="p-5 select-none">
@@ -416,13 +421,7 @@ export default function CreateEvent() {
 
                     {/* overview */}
                     <section className="border-2 border-mid-light rounded-xl w-2/3 p-5 hover:border-primary-mid">
-                        {/*<Image*/}
-                        {/*    src={null}*/}
-                        {/*    alt="event banner"*/}
-                        {/*    width="1600"*/}
-                        {/*    height="800"*/}
-                        {/*/>*/}
-                        <div className="bg-mid-light w-full h-80 rounded-xl"></div>
+                        <BannerUpload />
                         <h2 className="mt-8 text-2xl font-semibold">Event Overview</h2>
                         <p className="text-base font-light mt-3">Create your event&apos;s first impression: Set a catchy
                             title, upload a banner image, and provide a concise description of your event.</p>
@@ -451,23 +450,19 @@ export default function CreateEvent() {
                                 <label htmlFor="date-input" className="block mb-2 text-lg font-medium">
                                     Date
                                 </label>
-                                <input type="date" id="date-input"/>
+                                <input type="text" id="date-input"
+                                       className="bg-gray-50 border leading-none border-mid-dark text-dark text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                       min="09:00" max="18:00" placeholder="Select your event date" defaultValue="" onClick={() => {
+                                    setIsOpen(!isOpen)
+                                }} required/>
+                                <DatePicker />
                             </div>
                             <div>
                                 <label htmlFor="start-time"
                                        className="block mb-2 text-lg font-medium">Start
                                     time</label>
                                 <div className="relative">
-                                    <div
-                                        className="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
-                                        <svg className="w-4 h-4 text-mid-dark" aria-hidden="true"
-                                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                            <path fillRule="evenodd"
-                                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
-                                                  clipRule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                    <input type="time" id="start-time"
+                                <input type="time" id="start-time"
                                            className="bg-gray-50 border leading-none border-mid-dark text-dark text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                            min="09:00" max="18:00" defaultValue="00:00" required/>
                                 </div>
@@ -477,15 +472,6 @@ export default function CreateEvent() {
                                        className="block mb-2 text-lg font-medium text-dark">End
                                     time</label>
                                 <div className="relative">
-                                    <div
-                                        className="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
-                                        <svg className="w-4 h-4 text-mid-dark" aria-hidden="true"
-                                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                            <path fillRule="evenodd"
-                                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
-                                                  clipRule="evenodd"/>
-                                        </svg>
-                                    </div>
                                     <input type="time" id="end-time"
                                            className="bg-gray-50 border leading-none border-mid-dark text-dark text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                            min="09:00" max="18:00" defaultValue="00:00" required/>

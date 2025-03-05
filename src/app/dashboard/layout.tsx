@@ -1,4 +1,4 @@
-import Navbar from "@/components/fragments/Navbar";
+import Navbar from "@/components/fragments/dashboard/Navbar";
 import Sidebar from "@/components/fragments/dashboard/Sidebar";
 
 interface LayoutProps {

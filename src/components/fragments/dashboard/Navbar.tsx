@@ -12,7 +12,7 @@ export default function Navbar() {
     return (
         <nav className="bg-light shadow-sm col-span-full">
             <div className="max-w-screen-3xl flex flex-wrap items-center justify-between mx-auto px-12 p-4">
-                <Link href="/" className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}>
+                <Link href="/public" className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}>
                     <span className="self-center text-3xl font-bold whitespace-nowrap"><span className="text-primary-dark">Ticket</span><span className="text-alternative-mid">Point</span></span>
                 </Link>
                 <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">

@@ -27,10 +27,8 @@ export default function Card({ id, path, title, description, imageUrl }: Props) 
                 />
             </a>
             <div className="p-5">
-                <h1>
-                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-[var(--color-dark)] font-inter">
-                        {title}
-                    </h5>
+                <h1 className="mb-2 text-2xl font-bold tracking-tight text-[var(--color-dark)] font-inter">
+                    {title}
                 </h1>
                 <p className="mb-3 font-normal text-[var(--color-mid-dark)] font-inter">
                     {truncateWords(description)}

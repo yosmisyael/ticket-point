@@ -1,8 +1,9 @@
 "use client";
+import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function EventsPage() {
     const events = [
@@ -26,11 +27,18 @@ export default function EventsPage() {
         }
     ];
 
+    const dateInputRef = useRef<HTMLInputElement>(null);
+
     useEffect(() => {
-        flatpickr("#date", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-        });
+        if (dateInputRef.current) {
+            flatpickr(dateInputRef.current, {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                onChange: (selectedDates) => {
+                    console.log("Selected dates:", selectedDates);
+                }
+            });
+        }
     }, []);
 
     return (
@@ -43,29 +51,37 @@ export default function EventsPage() {
 
             <div className="my-5 grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 md:mb-10">
                 <form className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-4">
-                    <div className="w-full sm:w-auto">
+                    <div className="relative w-full">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-[var(--color-mid-dark)]">
+                                <path strokeLinecap="round" strokeLinejoin="round"
+                                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                            </svg>
+                        </div>
                         <label htmlFor="date" className="sr-only">Tanggal</label>
                         <input
+                            ref={dateInputRef}
                             type="text"
                             id="date"
-                            placeholder="Select Date"
-                            className="w-full p-3 text-sm text-[var(--color-dark)] border border-[var(--color-mid-light)] rounded-lg bg-[var(--color-light)] focus:ring-[var(--color-primary-mid)] focus:border-[var(--color-primary-mid)] focus:outline-none"
+                            placeholder="Select Date Range"
+                            className="w-full p-3 pl-10 text-sm text-[var(--color-dark)] border border-[var(--color-mid-light)] rounded-lg bg-[var(--color-light)] focus:ring-[var(--color-primary-mid)] focus:border-[var(--color-primary-mid)] focus:outline-none"
                         />
                     </div>
 
                     <div className="relative w-full">
-                        <label htmlFor="default-search" className="sr-only">Search</label>
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <svg className="w-4 h-4 text-[var(--color-mid-dark)]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <svg className="w-5 h-5 text-[var(--color-mid-dark)]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                             </svg>
                         </div>
+                        <label htmlFor="default-search" className="sr-only">Search</label>
                         <input
                             type="search"
                             id="default-search"
                             className="block w-full p-3 pl-10 text-sm text-[var(--color-dark)] border border-[var(--color-mid-light)] rounded-lg bg-[var(--color-light)] focus:ring-[var(--color-primary-mid)] focus:border-[var(--color-primary-mid)] focus:outline-none"
                             placeholder="Search Event..."
-                            required
                         />
                     </div>
 
@@ -78,15 +94,8 @@ export default function EventsPage() {
                 </form>
 
                 <div className="flex justify-start md:justify-end">
-                    <a
-                        href="#"
-                        className="flex w-fit items-center px-4 py-2 text-sm font-medium text-center rounded-lg text-[var(--color-light)] bg-[var(--color-primary-mid)] hover:bg-[var(--color-primary-dark)] focus:ring-4 focus:outline-none"
-                    >
-                        <svg className="w-6 h-6 text-[var(--color-light)] mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
-                        </svg>
-                        Create Event
-                    </a>
+                    <Button href="/dashboard/events/create" bgColor="var(--color-primary-mid)"  textColor="var(--color-light)" >Create Event</Button>
+                    
                 </div>
 
                 <hr className="col-span-3 w-full border-[var(--color-mid-light)]" />

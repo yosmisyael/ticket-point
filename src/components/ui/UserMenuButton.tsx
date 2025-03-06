@@ -2,12 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import {CircleUser, LogOut, Settings} from "lucide-react";
-
-interface UserProps {
-    name: string;
-    email: string;
-}
+import { CircleUser, LogOut, Settings } from "lucide-react";
+import { UserProps } from "@/interfaces/user";
 
 const UserMenuButton = ({ user }: { user: UserProps }) => {
     const [isOpen, setIsOpen] = useState(false);

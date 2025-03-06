@@ -2,6 +2,13 @@
 import React, { useState } from "react";
 import { User, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import {NextFont} from "next/dist/compiled/@next/font";
+import {Poppins} from "next/font/google";
+
+const poppins: NextFont = Poppins({
+  weight: ['200', '400', '800'],
+  subsets: ['latin'],
+});
 
 export default function Login() {
   const [rememberMe, setRememberMe] = useState(true);
@@ -18,12 +25,8 @@ export default function Login() {
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center">
-              <h1 className="text-2xl font-bold">
-                <span className="text-blue-600">Ticket</span>
-                <span className="text-yellow-400">Point</span>
-                <span className="text-blue-600">.</span>
-              </h1>
+            <Link href="/" className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}>
+              <span className="self-center text-3xl font-bold whitespace-nowrap"><span className="text-primary-dark">Ticket</span><span className="text-alternative-mid">Point</span></span>
             </Link>
             <div className="flex gap-4">
               <Link

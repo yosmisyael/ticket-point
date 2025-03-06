@@ -1,4 +1,4 @@
-import Card from "@/components/ui/Card";
+import Card from "@/components/ui/CardEvent";
 
 export default function DashboardHome() {
     const events = [
@@ -25,7 +25,7 @@ export default function DashboardHome() {
     const name = "King Yosev";
 
     return (
-        <div className="p-10">
+        <div className="p-5">
             <div className="mb-10">
                 <h1 className="mx-2 text-6xl font-semibold font-inter text-[var(--color-dark)]">Welcome, {name} </h1>
             </div>

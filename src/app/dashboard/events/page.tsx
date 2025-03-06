@@ -1,11 +1,11 @@
 "use client";
 import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
+import Card from "@/components/ui/CardEvent";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { useEffect, useRef } from "react";
 
-export default function EventsPage() {
+export default function Events() {
     const events = [
         {
             id: 1,
@@ -42,7 +42,7 @@ export default function EventsPage() {
     }, []);
 
     return (
-        <div className="p-4 sm:p-6 md:p-10">
+        <div className="sm:p-6 md:p-5">
             <div className="mb-6 md:mb-20">
                 <h1 className="mx-2 text-4xl sm:text-5xl md:text-6xl font-semibold font-inter text-[var(--color-dark)]">
                     Events
@@ -60,7 +60,7 @@ export default function EventsPage() {
                                     d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                             </svg>
                         </div>
-                        <label htmlFor="date" className="sr-only">Tanggal</label>
+                        <label htmlFor="date" className="sr-only">Date</label>
                         <input
                             ref={dateInputRef}
                             type="text"
@@ -94,8 +94,8 @@ export default function EventsPage() {
                 </form>
 
                 <div className="flex justify-start md:justify-end">
-                    <Button href="/dashboard/events/create" bgColor="var(--color-primary-mid)"  textColor="var(--color-light)" >Create Event</Button>
-                    
+                    <Button href="#" bgColor="var(--color-primary-mid)" textColor="var(--color-light)" >Create Event</Button>
+
                 </div>
 
                 <hr className="col-span-3 w-full border-[var(--color-mid-light)]" />

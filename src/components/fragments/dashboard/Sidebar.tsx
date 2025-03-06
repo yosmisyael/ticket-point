@@ -1,19 +1,14 @@
-'use client'
+"use client";
 
-import React from 'react';
+import React from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
+import LinkInterface from "@/interfaces/Link";
 
-interface Link {
-    name: string;
-    path: string;
-    icon: React.ReactNode;
-};
-
-const links: Link[] = [
+const links: LinkInterface[] = [
     {
-        name: 'home',
-        path: '/dashboard/home',
+        name: "home",
+        path: "/dashboard/home",
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                    strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -23,8 +18,8 @@ const links: Link[] = [
         )
     },
     {
-        name: 'events',
-        path: '/dashboard/events',
+        name: "events",
+        path: "/dashboard/events",
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                  strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -34,8 +29,8 @@ const links: Link[] = [
         )
     },
     {
-        name: 'organization',
-        path: '/dashboard/organization',
+        name: "organization",
+        path: "/dashboard/organization",
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                  strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -45,8 +40,8 @@ const links: Link[] = [
         )
     },
     {
-        name: 'reports',
-        path: '/dashboard/reports',
+        name: "reports",
+        path: "/dashboard/reports",
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                  strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -59,7 +54,7 @@ const links: Link[] = [
 
 export default function Sidebar() {
     const path: string = usePathname();
-    const pathname: string[] = path.split('/');
+    const pathname: string[] = path.split("/");
 
     return (
         <div>
@@ -70,7 +65,7 @@ export default function Sidebar() {
                 <div className="h-full px-3 py-4 overflow-y-auto bg-light text-mid-dark">
                     <ul className="space-y-3 text-xl">
                         {
-                            links.map((link: Link, index) => (
+                            links.map((link: LinkInterface, index) => (
                                 <li key={index}>
                                     <Link href={ link.path }
                                           className={`flex items-center p-2 text-mid-dark rounded-lg group ${pathname[pathname.length - 1] === link.name ? "bg-primary-mid text-white" : "hover:bg-white hover:text-dark"}`}>

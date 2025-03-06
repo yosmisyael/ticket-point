@@ -63,7 +63,7 @@ const UserMenuButton = ({ user }: { user: UserProps }) => {
                         <p className="text-sm text-gray-500 truncate">{user?.email || 'user@example.com'}</p>
                     </div>
 
-                    <Link href="/settings" className="cursor-pointer flex gap-3 rounded-lg items-center px-4 py-2 text-base text-mid-dark hover:text-dark hover:bg-mid-light">
+                    <Link href="/dashboard/settings/contact" className="cursor-pointer flex gap-3 rounded-lg items-center px-4 py-2 text-base text-mid-dark hover:text-dark hover:bg-mid-light">
                         <Settings size={24} />
                         Settings
                     </Link>

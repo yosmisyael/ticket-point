@@ -94,8 +94,7 @@ export default function Events() {
                 </form>
 
                 <div className="flex justify-start md:justify-end">
-                    <Button href="#" bgColor="var(--color-primary-mid)" textColor="var(--color-light)" >Create Event</Button>
-
+                    <Button href="/dashboard/events/create" bgColor="var(--color-primary-mid)" textColor="var(--color-light)" >Create Event</Button>
                 </div>
 
                 <hr className="col-span-3 w-full border-[var(--color-mid-light)]" />

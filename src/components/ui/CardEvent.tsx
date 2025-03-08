@@ -34,7 +34,7 @@ export default function CardEvent({ id, path, title, description, imageUrl }: Pr
                     {truncateWords(description)}
                 </p>
                 <div className="flex justify-end">
-                    <Button href={`${path}/${id}`} bgColor="var(--color-primary-mid)" textColor="var(--color-light)" >Read More</Button>
+                    <Button href={`${path}/${id}`} bgColor="var(--color-primary-mid)" textColor="var(--color-light)" >Detail </Button>
                 </div>
             </div>
         </div>

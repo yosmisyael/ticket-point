@@ -22,7 +22,8 @@ export default function Button({
         <Link
             href={href}
             className={clsx(
-                "inline-flex items-center px-3 py-2 text-sm font-medium text-center focus:ring-4 focus:outline-none",
+                "px-10",
+                "inline-flex items-center px-3 py-2 text-sm rounded-lg font-medium text-center focus:ring-4 focus:outline-none",
                 isTailwindClass ? bgColor : "", 
                 isTailwindClass ? textColor : "",
                 "hover:bg-opacity-80"

@@ -1,3 +1,4 @@
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import Card from "@/components/ui/Card";
 import Table from "@/components/ui/Table";
 import { Calendar1Icon, MapPinIcon, TimerIcon } from "lucide-react";
@@ -25,36 +26,51 @@ export default function DetailEvent() {
 
     return (
         <div className="p-5">
+            <Breadcrumb />
             {events.map((event, index) => (
-                <Card className="w-full mb-10" key={index}>
+                <Card className="w-full mb-10 mt-10" key={index}>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="col-span-1 flex justify-center md:justify-start">
                             <Image
                                 src={"/1.jpg"}
                                 width={300}
                                 height={150}
-                                className="rounded-xl"
+                                className="rounded-xl w-full md:w-full lg:w-auto"
                                 alt="Event Image"
+                                style={{
+                                    objectFit: "cover",
+                                    width: "100%",
+                                    height: "auto",
+                                }}
                             />
                         </div>
+
                         <div className="col-span-1 md:col-span-3">
                             <h3 className="text-2xl md:text-3xl text-[var(--color-dark)] font-bold">
                                 {event.title}
                             </h3>
+
                             <h5 className="text-sm text-[var(--color-mid-dark)] my-2">
                                 {event.description}
                             </h5>
+
                             <div className="flex flex-col md:flex-row text-[var(--color-mid-dark)] items-start md:items-center gap-2 md:gap-4">
-                                <h5 className="flex items-center gap-1">
-                                    <Calendar1Icon size={16} /> {event.date}
+                                <h5 className="flex items-center gap-1  text-[var(--color-primary-mid)]">
+                                    <Calendar1Icon size={16} className="text-[var(--color-alternative-mid)] mr-1" /> {event.date}
                                 </h5>
-                                <h5 className="flex items-center gap-1">
-                                    <TimerIcon size={16} /> {event.startTime} - {event.endTime}
+
+                                <h5 className="flex items-center gap-1  text-[var(--color-primary-mid)]">
+                                    <TimerIcon size={16} className="text-[var(--color-alternative-mid)] mr-1" /> {event.startTime} - {event.endTime}
                                 </h5>
-                                <h5 className="flex items-center gap-1">
-                                    <MapPinIcon size={16} /> {event.location}
+
+                                <h5 className="flex items-center gap-1  text-[var(--color-primary-mid)]">
+                                    <MapPinIcon size={16} className="text-[var(--color-alternative-mid)] mr-1" /> {event.location}
                                 </h5>
                             </div>
+
+                            <span className="inline-block text-lg p-1 px-6 rounded-full mt-4 text-[var(--color-light)] font-semibold bg-[var(--color-alternative-mid)]">
+                                Publish
+                            </span>
                         </div>
                     </div>
                 </Card>

@@ -7,16 +7,19 @@ import UserMenuButton from "@/components/ui/UserMenuButton";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
+// Font
 const poppins: NextFont = Poppins({
   weight: ["200", "400", "800"],
   subsets: ["latin"],
 });
 
+// Data dummy user (contoh)
 const dummyUser = {
   name: "Havid Rosihandanuu",
   email: "mangaped@king.com",
 };
 
+// Loader (opsional, jika Anda ingin menampilkan animasi loading saat navigasi)
 function Loader() {
   return (
     <div className="loader-overlay">
@@ -89,10 +92,12 @@ function Loader() {
           }
         }
         @keyframes l5-1 {
-          10%, 70% {
+          10%,
+          70% {
             background-size: 100% 205%, var(--s, 0) 100%;
           }
-          70%, 100% {
+          70%,
+          100% {
             background-position: top, center;
           }
         }
@@ -112,9 +117,17 @@ export default function Navbar() {
 
   return (
     <nav className="bg-light shadow-sm col-span-full">
-      {/* Tampilkan loader jika loading */}
+      {/* Tampilkan loader jika state loading = true */}
       {loading && <Loader />}
-      <div className="max-w-screen-3xl flex flex-wrap items-center justify-between mx-auto px-12 p-4">
+
+      <div
+        className="
+          max-w-screen-3xl
+          flex flex-wrap items-center justify-between
+          mx-auto px-12 p-4
+        "
+      >
+        {/* Logo / Brand */}
         <Link
           href="/"
           onClick={() => setLoading(true)}
@@ -125,6 +138,8 @@ export default function Navbar() {
             <span className="text-alternative-mid">Point</span>
           </span>
         </Link>
+
+        {/* Bagian kanan navbar (User Menu, dsb) */}
         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           <UserMenuButton user={dummyUser} />
         </div>

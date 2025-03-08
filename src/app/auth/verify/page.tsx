@@ -131,15 +131,6 @@ export default function Verify() {
                 <span className="text-alternative-mid">Point</span>
               </span>
             </Link>
-            <div className="flex gap-4">
-              <Link
-                href="/auth/register"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
-              >
-                <User className="h-5 w-5 mr-2" />
-                <span>Daftar</span>
-              </Link>
-            </div>
           </div>
         </div>
       </header>
@@ -163,7 +154,7 @@ export default function Verify() {
                 <VerificationInput length={6} onComplete={handleVerificationComplete} />
 
                 <button 
-                  className={`w-[422px] flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 max-sm:w-[335px] ${
+                  className={`w-[422px] flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-primary-mid hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 max-sm:w-[335px] ${
                     isLoading ? 'opacity-70 cursor-not-allowed' : 'transform hover:scale-[1.02]'
                   }`}
                   disabled={isLoading}
@@ -177,7 +168,7 @@ export default function Verify() {
                     {canResend ? (
                       <button 
                         onClick={handleResendCode}
-                        className="font-medium text-yellow-400 hover:text-yellow-500 transition-all duration-300"
+                        className="font-medium text-alternative-mid hover:text-yellow-500 transition-all duration-300"
                         disabled={isLoading}
                       >
                         Kirim Ulang
@@ -192,18 +183,6 @@ export default function Verify() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Image Section */}
-        <div className="hidden lg:block w-1/2 bg-cover bg-center transition-all duration-500">
-          <div 
-            className="h-full w-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 backdrop-blur-sm"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1707343843437-caacff5cfa74?q=80&w=2940&auto=format&fit=crop')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          ></div>
         </div>
       </main>
     </div>

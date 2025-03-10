@@ -1,4 +1,3 @@
-// File: page.tsx
 'use client'
 
 import { useState } from "react";
@@ -50,6 +49,11 @@ const SUGGESTED_CATEGORIES = [
   'Science', 'Gaming', 'Networking'
 ];
 
+// Fungsi untuk menghasilkan URL embed Google Maps dari alamat yang diberikan
+const generateMapEmbedUrl = (address: string) => {
+  return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+};
+
 export default function CreateEvent() {
   // Default locationFormat = 'hybrid'
   const [locationFormat, setLocationFormat] = useState<LocationFormat>('hybrid');
@@ -59,6 +63,9 @@ export default function CreateEvent() {
     onlinePlatform: '',
     meetingLink: ''
   });
+  // State untuk menandai apakah alamat sudah disimpan (hanya 1 map)
+  const [addressSaved, setAddressSaved] = useState(false);
+
   // Gunakan state tipe DateRange untuk rentang tanggal
   const [eventDate, setEventDate] = useState<DateRange | undefined>(undefined);
 
@@ -71,25 +78,25 @@ export default function CreateEvent() {
   const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
 
-  // Saat user memilih location type
+  // Saat user memilih tipe lokasi
   const handleLocationFormatChange = (format: LocationFormat) => {
     setLocationFormat(format);
     const url = new URL(window.location.href);
     url.searchParams.set('format', format);
     window.history.replaceState({}, '', url.toString());
 
-    // Reset form location
+    // Reset form lokasi dan flag saved
     setLocationDetails({
       physicalLocation: '',
       onlinePlatform: '',
       meetingLink: ''
     });
+    setAddressSaved(false);
   };
 
   // Handle perubahan tanggal dari DatePicker
   const handleDateChange = (range: DateRange | undefined) => {
     setEventDate(range);
-    // Jika rentang lengkap telah dipilih, tutup kalender
     if (range?.from && range?.to) {
       setIsOpen(false);
     }
@@ -167,35 +174,70 @@ export default function CreateEvent() {
         : ""
     : "";
 
-  // Render input location berdasarkan locationFormat
+  // Render input lokasi berdasarkan tipe event
   const renderLocationInput = () => {
     switch (locationFormat) {
       case 'ofsite':
         return (
           <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="physical-location"
-                className="block mt-6 text-lg font-medium text-dark"
-              >
-                Physical Location
-              </label>
+            <label
+              htmlFor="physical-location"
+              className="block mt-6 text-lg font-medium text-dark"
+            >
+              Physical Location
+            </label>
+            {!addressSaved ? (
               <div className="relative mt-1">
                 <input
                   type="text"
                   id="physical-location"
                   value={locationDetails.physicalLocation}
                   onChange={(e) => updateLocationDetails('physicalLocation', e.target.value)}
-                  placeholder="Enter venue address"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
+                      setAddressSaved(true);
+                    }
+                  }}
+                  onBlur={() => {
+                    if (locationDetails.physicalLocation.trim() !== '') {
+                      setAddressSaved(true);
+                    }
+                  }}
+                  placeholder="Enter venue address or pick on map"
                   className="block w-full pl-10 p-4 rounded-lg border border-gray-300 shadow-sm focus:outline-none"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-5 w-5 text-mid-dark" />
                 </div>
               </div>
-            </div>
-            <div className="bg-gray-200 w-full h-64 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500">Location Map Preview</p>
+            ) : (
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-lg font-medium text-dark">
+                  {locationDetails.physicalLocation}
+                </span>
+                <button
+                  onClick={() => {
+                    setAddressSaved(false);
+                    updateLocationDetails('physicalLocation', '');
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            )}
+            {/* Preview Map hanya jika alamat sudah disimpan */}
+            <div className="bg-gray-200 w-full h-64 rounded-lg flex items-center justify-center mt-4">
+              {addressSaved && locationDetails.physicalLocation ? (
+                <iframe
+                  key={locationDetails.physicalLocation}
+                  src={generateMapEmbedUrl(locationDetails.physicalLocation)}
+                  className="w-full h-full rounded-lg"
+                  title="Map Preview"
+                />
+              ) : (
+                <p className="text-gray-500">Location Map Preview</p>
+              )}
             </div>
           </div>
         );
@@ -247,31 +289,68 @@ export default function CreateEvent() {
       case 'hybrid':
         return (
           <div className="space-y-4">
-            <div className="space-y-4">
+            <div>
               <label
                 htmlFor="physical-location"
                 className="block mt-6 text-lg font-medium text-dark"
               >
                 Physical Location
               </label>
-              <div className="relative mt-1">
-                <input
-                  type="text"
-                  id="physical-location"
-                  value={locationDetails.physicalLocation}
-                  onChange={(e) => updateLocationDetails('physicalLocation', e.target.value)}
-                  placeholder="Enter venue address"
-                  className="block w-full pl-10 p-4 rounded-lg border border-gray-300 shadow-sm focus:outline-none"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-mid-dark" />
+              {!addressSaved ? (
+                <div className="relative mt-1">
+                  <input
+                    type="text"
+                    id="physical-location"
+                    value={locationDetails.physicalLocation}
+                    onChange={(e) => updateLocationDetails('physicalLocation', e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
+                        setAddressSaved(true);
+                      }
+                    }}
+                    onBlur={() => {
+                      if (locationDetails.physicalLocation.trim() !== '') {
+                        setAddressSaved(true);
+                      }
+                    }}
+                    placeholder="Enter venue address or pick on map"
+                    className="block w-full pl-10 p-4 rounded-lg border border-gray-300 shadow-sm focus:outline-none"
+                  />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-mid-dark" />
+                  </div>
                 </div>
-              </div>
-              <div className="bg-gray-200 w-full h-64 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Location Map Preview</p>
+              ) : (
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-lg font-medium text-dark">
+                    {locationDetails.physicalLocation}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setAddressSaved(false);
+                      updateLocationDetails('physicalLocation', '');
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              )}
+              {/* Preview Map */}
+              <div className="bg-gray-200 w-full h-64 rounded-lg flex items-center justify-center mt-4">
+                {addressSaved && locationDetails.physicalLocation ? (
+                  <iframe
+                    key={locationDetails.physicalLocation}
+                    src={generateMapEmbedUrl(locationDetails.physicalLocation)}
+                    className="w-full h-full rounded-lg"
+                    title="Map Preview"
+                  />
+                ) : (
+                  <p className="text-gray-500">Location Map Preview</p>
+                )}
               </div>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 mt-6">
               <label
                 htmlFor="online-platform"
                 className="block mt-6 text-lg font-medium text-dark"
@@ -313,6 +392,8 @@ export default function CreateEvent() {
             </div>
           </div>
         );
+      default:
+        return null;
     }
   };
 
@@ -352,61 +433,59 @@ export default function CreateEvent() {
 
           {/* Date Time Section */}
           <section className="border-2 border-mid-light rounded-xl w-full md:w-2/3 p-5 hover:border-primary-mid mx-auto">
-  <h2 className="text-2xl font-semibold">Date</h2>
-  <p className="text-base font-light mt-3">Select event date and time</p>
-  <div className="flex flex-col md:flex-row gap-10 mt-6">
-    <div className="flex-1">
-      <label htmlFor="date-input" className="block mb-2 text-lg font-medium">
-        Date
-      </label>
-      {/* Bungkus input & kalender di dalam container relative */}
-      <div className="relative">
-      <input
-    type="text"
-    id="date-input"
-    className="bg-gray-50 border border-mid-dark text-dark text-sm rounded-lg focus:outline-none block w-full p-2.5"
-    placeholder="Select your event date"
-    value={displayValue}
-    onClick={() => setIsOpen(true)}
-    readOnly
-    required
-  />
-  {isOpen && (
-    <div className="mt-2 z-10 w-full max-w-xs sm:max-w-sm">
-      <DatePicker
-        selected={eventDate}
-        onSelect={handleDateChange}
-        onClose={() => setIsOpen(false)}
-      />
-          </div>
-        )}
-      </div>
-    </div>
-    <div className="flex-1">
-      <label htmlFor="start-time" className="block mb-2 text-lg font-medium">
-        Start time
-      </label>
-      <input
-        type="time"
-        id="start-time"
-        className="bg-gray-50 border border-mid-dark text-dark text-sm rounded-lg focus:outline-none block w-full p-2.5"
-        required
-      />
-    </div>
-    <div className="flex-1">
-      <label htmlFor="end-time" className="block mb-2 text-lg font-medium text-dark">
-        End time
-      </label>
-      <input
-        type="time"
-        id="end-time"
-        className="bg-gray-50 border border-mid-dark text-dark text-sm rounded-lg focus:outline-none block w-full p-2.5"
-        required
-      />
-    </div>
-  </div>
-</section>
-
+            <h2 className="text-2xl font-semibold">Date</h2>
+            <p className="text-base font-light mt-3">Select event date and time</p>
+            <div className="flex flex-col md:flex-row gap-10 mt-6">
+              <div className="flex-1">
+                <label htmlFor="date-input" className="block mb-2 text-lg font-medium">
+                  Date
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="date-input"
+                    className="bg-gray-50 border border-mid-dark text-dark text-sm rounded-lg focus:outline-none block w-full p-2.5"
+                    placeholder="Select your event date"
+                    value={displayValue}
+                    onClick={() => setIsOpen(true)}
+                    readOnly
+                    required
+                  />
+                  {isOpen && (
+                    <div className="mt-2 z-10 w-full max-w-xs sm:max-w-sm">
+                      <DatePicker
+                        selected={eventDate}
+                        onSelect={handleDateChange}
+                        onClose={() => setIsOpen(false)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex-1">
+                <label htmlFor="start-time" className="block mb-2 text-lg font-medium">
+                  Start time
+                </label>
+                <input
+                  type="time"
+                  id="start-time"
+                  className="bg-gray-50 border border-mid-dark text-dark text-sm rounded-lg focus:outline-none block w-full p-2.5"
+                  required
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="end-time" className="block mb-2 text-lg font-medium text-dark">
+                  End time
+                </label>
+                <input
+                  type="time"
+                  id="end-time"
+                  className="bg-gray-50 border border-mid-dark text-dark text-sm rounded-lg focus:outline-none block w-full p-2.5"
+                  required
+                />
+              </div>
+            </div>
+          </section>
 
           {/* Event type Section */}
           <section className="border-2 border-mid-light rounded-xl w-full md:w-2/3 p-5 hover:border-primary-mid mx-auto" id="location-type">

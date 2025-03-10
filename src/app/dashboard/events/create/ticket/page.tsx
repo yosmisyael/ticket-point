@@ -23,6 +23,7 @@ interface TicketTier {
   price: number;
   capacity: number;
   onlineCapacity?: number;
+  currency?: string; // properti currency ditambahkan
   icon: React.ReactNode;
   iconType: IconType;
   iconColor: IconColor;
@@ -55,6 +56,7 @@ const defaultTiers: TicketTier[] = [
     price: 0,
     capacity: 0,
     onlineCapacity: 0,
+    currency: "Rp", // nilai default currency
     icon: <Medal className="h-5 w-5" />,
     iconType: 'icon',
     iconColor: '#4B5563',
@@ -66,6 +68,7 @@ const defaultTiers: TicketTier[] = [
     price: 0,
     capacity: 0,
     onlineCapacity: 0,
+    currency: "Rp",
     icon: <Medal className="h-5 w-5" style={{ color: '#3B82F6' }} />,
     iconType: 'icon',
     iconColor: '#3B82F6',
@@ -77,6 +80,7 @@ const defaultTiers: TicketTier[] = [
     price: 0,
     capacity: 0,
     onlineCapacity: 0,
+    currency: "Rp",
     icon: <Crown className="h-5 w-5" style={{ color: '#F59E0B' }} />,
     iconType: 'icon',
     iconColor: '#F59E0B',
@@ -88,6 +92,7 @@ const defaultTiers: TicketTier[] = [
     price: 0,
     capacity: 0,
     onlineCapacity: 0,
+    currency: "Rp",
     icon: <Crown className="h-5 w-5" style={{ color: '#8B5CF6' }} />,
     iconType: 'icon',
     iconColor: '#8B5CF6',
@@ -171,6 +176,7 @@ export default function TicketPage() {
       price: 0,
       capacity: 0,
       onlineCapacity: locationFormat === 'hybrid' ? 0 : undefined,
+      currency: "Rp", // set default currency
       icon: <Ticket className="h-5 w-5" />,
       iconType: 'icon',
       iconColor: '#4B5563',
@@ -343,6 +349,11 @@ export default function TicketPage() {
               onlineCapacity: newOnline
             };
           }
+        } else if (field === 'currency') {
+          updatedTier = {
+            ...tier,
+            currency: value as string
+          };
         } else {
           updatedTier = {
             ...tier,
@@ -538,11 +549,7 @@ export default function TicketPage() {
                 <div key={tier.id} className="mt-4 p-4 border border-mid-dark rounded-lg">
                   <div className="flex items-center gap-4">
                     <div className="flex flex-col items-center gap-2">
-                      {tier.iconType === 'image' && tier.iconUrl ? (
-                        <img src={tier.iconUrl} alt={tier.name} className="h-8 w-8 object-cover" />
-                      ) : (
-                        tier.icon
-                      )}
+                      {tier.icon}
                       <select
                         value={tier.iconType}
                         onChange={(e) => updateTicketTier(tier.id, 'iconType', e.target.value as IconType)}
@@ -550,7 +557,6 @@ export default function TicketPage() {
                       >
                         <option value="icon">Default Icon</option>
                         <option value="library">Icon Library</option>
-                        <option value="image">Custom Image</option>
                       </select>
                       <input
                         type="text"
@@ -559,21 +565,6 @@ export default function TicketPage() {
                         placeholder="Enter color code or gradient"
                         className="text-sm border border-mid-dark rounded px-2 py-1"
                       />
-                      {tier.iconType === 'image' && (
-                        <label 
-                          htmlFor={`icon-upload-${tier.id}`}
-                          className="cursor-pointer text-sm text-primary-mid hover:text-primary-dark"
-                        >
-                          Upload Image
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleIconUpload(tier.id, e)}
-                            className="hidden"
-                            id={`icon-upload-${tier.id}`}
-                          />
-                        </label>
-                      )}
                       {tier.iconType === 'library' && (
                         <button
                           onClick={() => setShowIconLibrary(tier.id)}
@@ -599,13 +590,25 @@ export default function TicketPage() {
                       <label className="block text-sm font-medium text-dark mb-1">
                         Price
                       </label>
-                      <input
-                        type="number"
-                        value={tier.price}
-                        onChange={(e) => updateTicketTier(tier.id, 'price', parseInt(e.target.value))}
-                        placeholder="Enter price"
-                        className="w-32 p-2 border border-mid-dark rounded-lg"
-                      />
+                      <div className="flex">
+                        <select
+                          value={tier.currency || 'Rp'}
+                          onChange={(e) => updateTicketTier(tier.id, 'currency', e.target.value)}
+                          className="p-2 border border-mid-dark rounded-l-lg"
+                        >
+                          <option value="Rp">Rp</option>
+                          <option value="$">$</option>
+                          <option value="€">€</option>
+                          <option value="£">£</option>
+                        </select>
+                        <input
+                          type="number"
+                          value={tier.price}
+                          onChange={(e) => updateTicketTier(tier.id, 'price', parseInt(e.target.value))}
+                          placeholder="Enter price"
+                          className="w-32 p-2 border border-mid-dark rounded-r-lg"
+                        />
+                      </div>
                     </div>
                     {(locationFormat === 'ofsite' || locationFormat === 'hybrid') && (
                       <div>
@@ -669,7 +672,7 @@ export default function TicketPage() {
                   </div>
 
                   {showIconLibrary === tier.id && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50">
                       <div className="bg-white p-4 rounded-lg w-96 max-h-96 overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
                           <h3 className="text-lg font-medium">Choose Icon</h3>

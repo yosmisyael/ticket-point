@@ -5,34 +5,52 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import { Search, User, MapPin, Calendar, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Switch to Inter font which has better support
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
 });
 
+// Dummy data (tanpa input box, nanti akan diganti dari database)
+const dummyAddress = "PQ5W+336, Keputih, Kec. Sukolilo, Surabaya, Jawa Timur 60111";
+// Jika embed URL kosong, maka akan digunakan embed URL default (hasil share manual)
+const dummyEmbedUrl = "";
+const defaultEmbedUrl =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31615.67432474118!2d112.71239137058479!3d-7.480327299999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7e95a6e7e6b81%3A0x2c123456789abcdef!2sPQ5W%2B336%2C%20Keputih%2C%20Kec.%20Sukolilo%2C%20Surabaya%2C%20Jawa%20Timur%2060111!5e0!3m2!1sen!2sid!4v1680100000000!5m2!1sen!2sid";
+
+// Fungsi untuk mendapatkan embed URL final berdasarkan dummy data
+const getFinalEmbedUrl = () => {
+  if (dummyEmbedUrl && dummyEmbedUrl.trim() !== "") {
+    return dummyEmbedUrl;
+  } else if (dummyAddress && dummyAddress.trim() !== "") {
+    return defaultEmbedUrl;
+  }
+  return "";
+};
+
+const finalEmbedUrl = getFinalEmbedUrl();
+
 export default function EventsPage() {
   const categories = Array(12).fill('Category');
-  
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const dummyImageColors = [
     'bg-blue-400',
     'bg-green-400',
     'bg-purple-400',
     'bg-orange-400'
   ];
-  
+
   const goToNextImage = () => {
-    setCurrentImageIndex((prevIndex) => 
+    setCurrentImageIndex(prevIndex =>
       prevIndex === dummyImageColors.length - 1 ? 0 : prevIndex + 1
     );
   };
-  
+
   const goToPrevImage = () => {
-    setCurrentImageIndex((prevIndex) => 
+    setCurrentImageIndex(prevIndex =>
       prevIndex === 0 ? dummyImageColors.length - 1 : prevIndex - 1
     );
   };
@@ -49,7 +67,6 @@ export default function EventsPage() {
                 <span className="text-[var(--color-alternative-mid)]">Point</span>
               </span>
             </Link>
-            
             <div className="flex-1 max-w-xl mx-8">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -60,7 +77,6 @@ export default function EventsPage() {
                 />
               </div>
             </div>
-
             <nav className="flex items-center space-x-6">
               <a href="#" className="nav-link">Create Event</a>
               <button className="flex items-center space-x-2 bg-[var(--color-primary-mid)] text-white px-4 py-2 rounded-md">
@@ -74,31 +90,18 @@ export default function EventsPage() {
 
       {/* Main Content */}
       <main className="flex-grow">
-        {/* Event Details Section */}
         <div className="container mx-auto px-4 py-8">
-          {/* Event Images Swiper */}
+          {/* Image slider */}
           <div className="h-64 mb-8 rounded-lg overflow-hidden relative">
-            {/* Custom Image Slider */}
             <div className={`${dummyImageColors[currentImageIndex]} h-full w-full flex items-center justify-center transition-all duration-500 ease-in-out`}>
               <span className="text-white text-xl font-bold">Event Image {currentImageIndex + 1}</span>
             </div>
-            
-            {/* Navigation Buttons */}
-            <button 
-              onClick={goToPrevImage}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-100 transition-all"
-            >
+            <button onClick={goToPrevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-100 transition-all">
               <ChevronLeft className="w-6 h-6 text-gray-800" />
             </button>
-            
-            <button 
-              onClick={goToNextImage}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-100 transition-all"
-            >
+            <button onClick={goToNextImage} className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-100 transition-all">
               <ChevronRight className="w-6 h-6 text-gray-800" />
             </button>
-            
-            {/* Indicator Dots */}
             <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
               {dummyImageColors.map((_, index) => (
                 <button 
@@ -110,11 +113,11 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Event Header */}
+          {/* Event header */}
           <div className="flex justify-between items-start mb-8">
             <div>
               <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
-                <span>Date : Day</span>
+                <span>Date: Day</span>
               </div>
               <h1 className="text-3xl font-bold mb-4">
                 Some Event Title in a bit detail here something something
@@ -122,10 +125,9 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Event Details */}
+          {/* Event details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-8">
-              {/* Date & Time */}
               <div>
                 <h2 className="font-bold mb-2">Date & Time</h2>
                 <div className="flex items-center space-x-2 text-gray-600">
@@ -134,34 +136,27 @@ export default function EventsPage() {
                 </div>
               </div>
 
-              {/* Location */}
+              {/* Lokasi (menggunakan dummy data) */}
               <div>
                 <h2 className="font-bold mb-2">Location</h2>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <MapPin className="w-5 h-5" />
-                  <div>
-                    <div>Park Avenue</div>
-                    <div>465, Park Avenue lane, New York City, NYC, 10029</div>
-                  </div>
+                  <div>{dummyAddress}</div>
                 </div>
               </div>
 
-              {/* About */}
               <div>
                 <h2 className="font-bold mb-2">About the Event</h2>
                 <p className="text-gray-600">
-                  Lorem ipsum dolor sit amet consectetur. Vulputat tellus proin pretium porta quis etiam et vestibulum tempor. Consequat hac nisi leo non nunc viverra sagittis. Amet etiam vestibulum vitae commodo lectus rutrum eros. Egestas ullamcorper id leo potenti eget a pellentesque arcu.
+                  Lorem ipsum dolor sit amet consectetur. Vulputate tellus proin pretium porta quis etiam et vestibulum tempor. Consequat hac nisi leo non nunc viverra sagittis. Amet etiam vestibulum vitae commodo lectus rutrum eros. Egestas ullamcorper id leo potenti eget a pellentesque arcu.
                 </p>
               </div>
 
-              {/* Categories */}
               <div>
                 <h2 className="font-bold mb-2">Category</h2>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((category, index) => (
-                    <span key={index} className="Category">
-                      {category}
-                    </span>
+                    <span key={index} className="Category">{category}</span>
                   ))}
                 </div>
               </div>
@@ -169,13 +164,27 @@ export default function EventsPage() {
 
             {/* Map */}
             <div>
-              <div className="bg-gray-200 rounded-lg h-64 mb-4 flex items-center justify-center">
-                <span className="text-gray-500">Map</span>
+              <div className="mb-4">
+                {finalEmbedUrl ? (
+                  <iframe
+                    src={finalEmbedUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="rounded-lg h-64 w-full"
+                  ></iframe>
+                ) : (
+                  <div className="rounded-lg h-64 w-full flex items-center justify-center bg-gray-200 text-gray-500">
+                    Tidak ada data untuk menampilkan peta.
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Book Button */}
           <div className="mt-8 text-center">
             <button 
               onClick={() => setIsModalOpen(true)} 
@@ -185,20 +194,18 @@ export default function EventsPage() {
             </button>
           </div>
 
-          {/* Ticket Modal */}
           <TicketModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             eventData={{
               name: "Some Event Title in a bit detail here something something",
               banner: "/banner-placeholder.png",
-              location: "465, Park Avenue lane, New York City, NYC, 10029",
+              location: dummyAddress,
               eventDate: "February 23, 2024",
               eventTime: "5 PM - 7 PM IST"
             }}
           />
 
-          {/* Similar Events */}
           <div className="mt-16">
             <h2 className="text-2xl font-bold mb-8">Other events you may like</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -235,7 +242,6 @@ export default function EventsPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-[var(--color-light)] text-[var(--color-dark)] py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -287,11 +293,6 @@ export default function EventsPage() {
                 <a href="#" className="text-[var(--color-dark)] hover:text-[var(--color-primary-mid)] transition-colors">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
-                  </svg>
-                </a>
-                <a href="#" className="text-[var(--color-dark)] hover:text-[var(--color-primary-mid)] transition-colors">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fillRule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clipRule="evenodd" />
                   </svg>
                 </a>
               </div>

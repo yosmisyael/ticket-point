@@ -39,8 +39,7 @@ function App() {
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
               >
                 <UserCircle className="h-5 w-5 mr-2" />
-                <span>Login / Daftar</span>
-                <ChevronDown className="ml-2 h-4 w-4" />
+                <span>Daftar</span>
               </Link>
             </div>
           </div>
@@ -82,7 +81,7 @@ function App() {
 
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-medium font-medium text-white bg-primary-mid hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
+              className="w-full flex justify-center py-3 sm:py-4 px-4 border border-transparent rounded-full shadow-sm text-base sm:text-lg font-medium text-white bg-sky-500 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"
             >
               KIRIM
             </button>

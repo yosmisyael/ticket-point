@@ -239,7 +239,7 @@ export default function Login() {
                 <div className="text-sm">
                   <a
                     href="/auth/resetpw"
-                    className="font-medium text-yellow-400 hover:text-yellow-500 transition-all duration-300"
+                    className="font-medium text-alternative-mid hover:text-yellow-500 transition-all duration-300"
                   >
                     Lupa Password?
                   </a>
@@ -259,7 +259,7 @@ export default function Login() {
                   <a
                     href="/auth/register"
                     onClick={handleTransitionToRegister}
-                    className="font-medium text-yellow-400 hover:text-yellow-500 transition-all duration-300"
+                    className="font-medium text-alternative-mid hover:text-yellow-500 transition-all duration-300"
                   >
                     Daftar Disini
                   </a>

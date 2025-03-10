@@ -165,11 +165,9 @@ export default function Verify() {
                   onComplete={handleVerificationComplete}
                 />
 
-                <button
-                  className={`w-[422px] flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-primary-mid hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 max-sm:w-[335px] ${
-                    isLoading
-                      ? "opacity-70 cursor-not-allowed"
-                      : "transform hover:scale-[1.02]"
+                <button 
+                  className={`w-[422px] flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 max-sm:w-[335px] ${
+                    isLoading ? 'opacity-70 cursor-not-allowed' : 'transform hover:scale-[1.02]'
                   }`}
                   disabled={isLoading}
                 >
@@ -182,7 +180,7 @@ export default function Verify() {
                     {canResend ? (
                       <button
                         onClick={handleResendCode}
-                        className="font-medium text-[#ffc400] hover:text-yellow-500 transition-all duration-300"
+                        className="font-medium text-yellow-400 hover:text-yellow-500 transition-all duration-300"
                         disabled={isLoading}
                       >
                         Kirim Ulang

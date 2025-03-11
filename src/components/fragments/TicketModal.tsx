@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 
 const educationalInstitutions = [
@@ -36,10 +37,9 @@ const companies = [
   "Adobe"
 ] as const;
 
-// Fixed the price for Bronze tier to be 100 USD instead of 0.2
 const ticketTiers = {
   Bronze: {
-    price: 0,           // Fixed: Changed from 0.2 to 100 USD
+    price: 0,
     currency: "USD",
     displayPrice: "FREE",
     ticketsLeft: 200,
@@ -132,7 +132,6 @@ const positions = {
 type TicketTier = keyof typeof ticketTiers;
 type Position = keyof typeof positions;
 
-// Added TypeScript interface for Midtrans Snap
 declare global {
   interface Window {
     snap: {
@@ -169,7 +168,7 @@ interface TicketModalProps {
 }
 
 const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData }) => {
-  // State for USD -> IDR conversion rate with a reliable default
+  const router = useRouter();
   const [usdToIdrRate, setUsdToIdrRate] = useState<number>(16000);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState<boolean>(false);
   const [isSnapInitialized, setIsSnapInitialized] = useState<boolean>(false);
@@ -181,106 +180,87 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
     phone: '',
     position: 'student',
     institutionName: '',
-    selectedTier: 'Bronze'
+    selectedTier: 'Bronze',
   });
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false);
   const [isTicketDropdownOpen, setIsTicketDropdownOpen] = useState(false);
 
-  // Load Midtrans Snap script
+  // Load Midtrans Snap script saat modal terbuka
   useEffect(() => {
     const loadMidtransScript = () => {
       if (document.getElementById('midtrans-script')) {
         setIsSnapInitialized(true);
         return;
       }
-      
       const script = document.createElement('script');
       script.id = 'midtrans-script';
       script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
       script.setAttribute("data-client-key", "SB-Mid-client-sRSPfkNtFJlahNWN");
       script.async = true;
-      
       script.onload = () => {
         setIsSnapInitialized(true);
         console.log("Midtrans Snap script loaded successfully");
       };
-      
       script.onerror = (error) => {
         console.error("Error loading Midtrans script:", error);
         setError("Failed to load payment system. Please refresh and try again.");
       };
-      
       document.body.appendChild(script);
     };
-    
+
     if (isOpen) {
       loadMidtransScript();
     }
-    
-    return () => {
-      // We don't remove the script on unmount to prevent reloading issues
-    };
   }, [isOpen]);
 
-  // Fetch USD -> IDR exchange rate with better error handling
+  // Ambil nilai tukar USD ke IDR
   useEffect(() => {
     const fetchRate = async () => {
       if (isLoadingExchangeRate) return;
-      
       setIsLoadingExchangeRate(true);
       try {
         const res = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=IDR");
-        if (!res.ok) {
-          throw new Error(`HTTP error ${res.status}`);
-        }
-        
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const data = await res.json();
         if (data && data.rates && data.rates.IDR) {
           const fetchedRate = Number(data.rates.IDR);
-          // Use fetched rate if valid, otherwise use backup rate
           if (fetchedRate > 0) {
             setUsdToIdrRate(fetchedRate);
             console.log(`Exchange rate loaded: 1 USD = ${fetchedRate} IDR`);
           } else {
-            setUsdToIdrRate(16500); // Backup rate if returned value is invalid
+            setUsdToIdrRate(16500);
           }
         }
       } catch (err) {
         console.error("Exchange rate fetch error:", err);
-        setUsdToIdrRate(16500); // Fallback to backup rate on error
+        setUsdToIdrRate(16500);
       } finally {
         setIsLoadingExchangeRate(false);
       }
     };
-    
+
     if (isOpen) {
       fetchRate();
     }
   }, [isOpen, isLoadingExchangeRate]);
 
-  // Price conversion function with validation
   function convertPrice(tierKey: TicketTier): number {
     const tier = ticketTiers[tierKey];
     if (tier.currency === "USD") {
-      const convertedPrice = Math.round(tier.price * usdToIdrRate);
-      return convertedPrice > 0 ? convertedPrice : 1000; // Ensure positive value
+      return Math.round(tier.price * usdToIdrRate);
     } else {
-      return Math.round(tier.price); // Ensure integer for IDR
+      return Math.round(tier.price);
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (name === 'institutionName') {
       handleInstitutionInput(value);
     }
@@ -294,86 +274,81 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
         item.toLowerCase().includes(value.toLowerCase())
       );
       setSuggestions(filtered);
-      setShowSuggestions(true);
     } else {
       setSuggestions([]);
-      setShowSuggestions(false);
     }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    setFormData(prev => ({
-      ...prev,
-      institutionName: suggestion
-    }));
-    setShowSuggestions(false);
+    setFormData(prev => ({ ...prev, institutionName: suggestion }));
+    setSuggestions([]);
   };
 
   const handlePositionChange = (newPosition: Position) => {
-    setFormData(prev => ({
-      ...prev,
-      position: newPosition,
-      institutionName: ''
-    }));
+    setFormData(prev => ({ ...prev, position: newPosition, institutionName: '' }));
     setSuggestions([]);
-    setShowSuggestions(false);
     setIsPositionDropdownOpen(false);
   };
 
   const handleTicketChange = (tier: TicketTier) => {
-    setFormData(prev => ({
-      ...prev,
-      selectedTier: tier
-    }));
+    setFormData(prev => ({ ...prev, selectedTier: tier }));
     setIsTicketDropdownOpen(false);
   };
 
   const currentTier = ticketTiers[formData.selectedTier];
-  const inputClasses =
-    "w-full px-4 py-3 border border-[var(--color-border)] rounded-xl focus:ring-2 focus:ring-[var(--color-primary-mid)] hover:border-[var(--color-mid-dark)] transition-all duration-200";
+  const inputClasses = "w-full px-4 py-3 border border-[var(--color-border)] rounded-xl focus:ring-2 focus:ring-[var(--color-primary-mid)] hover:border-[var(--color-mid-dark)] transition-all duration-200";
 
-  // Form submission and Midtrans API call with improved error handling
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate form before submission
+
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.institutionName) {
       setError("Please fill in all required fields");
       return;
     }
-    
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError("Please enter a valid email address");
       return;
     }
-    
-    // Phone validation (basic)
     if (formData.phone.length < 6) {
       setError("Please enter a valid phone number");
       return;
     }
-    
-    // Check if Snap is initialized
+
+    const calculatedAmount = convertPrice(formData.selectedTier);
+
+    // Jika tiket gratis, langsung redirect ke halaman sukses
+    if (calculatedAmount === 0) {
+      setSubmitSuccess(true);
+      setTimeout(() => {
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          position: 'student',
+          institutionName: '',
+          selectedTier: 'Bronze'
+        });
+        setSubmitSuccess(false);
+        onClose();
+        router.push("/events/payment-success");
+      }, 2000);
+      return;
+    }
+
     if (!isSnapInitialized || !window.snap) {
       setError("Payment system is not ready. Please wait or refresh the page");
       return;
     }
-    
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
-      // Calculate price in IDR
-      const calculatedAmount = convertPrice(formData.selectedTier);
-      
-      // Generate unique order ID with timestamp and random string
       const randomStr = Math.random().toString(36).substring(2, 10);
       const uniqueOrderId = `ORDER-${Date.now()}-${randomStr}`;
-      
-      console.log(`Processing payment for ${formData.selectedTier} tier: ${calculatedAmount} IDR`);
-      
+
       const response = await fetch('/api/midtrans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -386,25 +361,18 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
           phone: formData.phone
         })
       });
-      
-      // Handle HTTP error
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const errorMessage = errorData.error || `Server error (${response.status})`;
         throw new Error(errorMessage);
       }
-      
+
       const data = await response.json();
-      
-      // Validate that we received a token
-      if (!data.token) {
-        throw new Error("Invalid response from payment server");
-      }
-      
-      // Open Snap payment popup
+      if (!data.token) throw new Error("Invalid response from payment server");
+
       window.snap.pay(data.token, {
-        onSuccess: (result) => {
-          console.log("Payment success:", result);
+        onSuccess: () => {
           setSubmitSuccess(true);
           setTimeout(() => {
             setFormData({
@@ -418,25 +386,22 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             });
             setSubmitSuccess(false);
             onClose();
+            router.push("/events/payment-success");
           }, 2000);
         },
         onPending: (result) => {
-          console.log("Payment pending:", result);
           setError("Payment is pending. Please check your email for confirmation.");
         },
         onError: (result) => {
-          console.error("Payment error:", result);
-          setError("Payment failed: " + (result?.status_message || "Please try again"));
+          setError("Payment failed: " + (result?.status_message || "Please try again."));
         },
         onClose: () => {
-          console.log("Payment popup closed without finishing");
-          setError("Payment process was cancelled. You can try again.");
-          setIsSubmitting(false);
+          setError("Payment process was cancelled.");
         }
       });
     } catch (err: any) {
-      console.error("Payment processing error:", err);
-      setError(err.message || "Failed to process payment. Please try again.");
+      setError(err.message || "Failed to process payment.");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -628,6 +593,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             />
           </div>
 
+          {/* Position & Institution/Company Name */}
           <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
             <button
@@ -671,7 +637,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
               placeholder={formData.position === 'work' ? 'Enter company name' : 'Enter institution name'}
               required
             />
-            {showSuggestions && suggestions.length > 0 && (
+            {suggestions.length > 0 && (
               <div className="absolute z-10 w-full mt-1 bg-white border rounded-xl shadow-lg max-h-60 overflow-auto">
                 {suggestions.map((suggestion, index) => (
                   <button

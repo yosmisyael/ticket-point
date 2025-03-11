@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Loader2 } from 'lucide-react';
+import { Camera, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X } from 'lucide-react';
 import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType, Result } from '@zxing/library';
 
@@ -35,6 +35,60 @@ interface Message {
     type: MessageType;
     text: string;
 }
+
+const MessageOverlay: React.FC<{
+    message: Message;
+    onClose: () => void;
+}> = ({ message, onClose }) => {
+    const getIcon = () => {
+        switch (message.type) {
+            case 'success':
+                return <CheckCircle2 className="h-6 w-6" />;
+            case 'error':
+                return <AlertCircle className="h-6 w-6" />;
+            case 'warning':
+                return <AlertTriangle className="h-6 w-6" />;
+        }
+    };
+
+    const getColors = () => {
+        switch (message.type) {
+            case 'success':
+                return 'bg-green-50 text-green-800 border-green-200';
+            case 'error':
+                return 'bg-red-50 text-red-800 border-red-200';
+            case 'warning':
+                return 'bg-yellow-50 text-yellow-800 border-yellow-200';
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 flex items-end sm:items-start justify-center px-4 py-6 pointer-events-none sm:p-6 z-50">
+            <div className={`max-w-sm w-full shadow-lg rounded-lg pointer-events-auto border ${getColors()} transform transition-all duration-300 ease-in-out`}>
+                <div className="p-4">
+                    <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                            {getIcon()}
+                        </div>
+                        <div className="ml-3 w-0 flex-1">
+                            <p className="text-sm font-medium">
+                                {message.text}
+                            </p>
+                        </div>
+                        <div className="ml-4 flex-shrink-0 flex">
+                            <button
+                                onClick={onClose}
+                                className="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function TicketCheckIn() {
     // State for camera
@@ -150,6 +204,10 @@ export default function TicketCheckIn() {
                 status: 'not checked'
             });
             setTicketVerified(true);
+            setMessage({
+                type: 'success',
+                text: 'Ticket found! Please verify the attendee information.'
+            });
         } else {
             setTicketData(null);
             setTicketVerified(false);
@@ -197,6 +255,14 @@ export default function TicketCheckIn() {
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
+            {/* Message Overlay */}
+            {message && (
+                <MessageOverlay
+                    message={message}
+                    onClose={() => setMessage(null)}
+                />
+            )}
+
             <header className="mb-8">
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
                     Ticket Check-in
@@ -205,17 +271,6 @@ export default function TicketCheckIn() {
                     Scan QR codes or barcodes to check in attendees. You can also enter ticket numbers manually.
                 </p>
             </header>
-
-            {/* Message Display */}
-            {message && (
-                <div className={`mb-6 p-4 rounded-lg ${
-                    message.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
-                        message.type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
-                            'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                }`}>
-                    {message.text}
-                </div>
-            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Camera and Ticket Number Section */}

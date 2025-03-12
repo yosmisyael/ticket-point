@@ -83,10 +83,12 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Input states for email and password
+  // Input states for email dan password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
+  // State untuk error login yang muncul di bawah input
+  const [loginError, setLoginError] = useState("");
   const controls = useAnimation();
   const router = useRouter();
 
@@ -94,6 +96,7 @@ export default function Login() {
     e.preventDefault();
     let valid = true;
     const newErrors = { email: "", password: "" };
+    setLoginError("");
 
     if (email.trim() === "") {
       newErrors.email = "Email is required";
@@ -113,27 +116,32 @@ export default function Login() {
         { email, password }
       );
 
-      // Assume API returns the user object with id, email, name, and token
+      // Misalnya API mengembalikan user object dengan id, email, name, dan token
       const user = response.data.data;
       console.log("Login response:", user);
 
-      // Save the entire user object in localStorage
+      // Simpan seluruh user object di localStorage
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Redirect to the dashboard/home upon successful login.
+      // Redirect ke dashboard/home setelah login sukses.
       window.location.href = "/dashboard/home";
     } catch (error: unknown) {
       console.error("Login error:", error);
       if (error instanceof AxiosError) {
         if (error.response) {
-          alert(error.response.data.message || "Login failed. Please try again.");
+          if (error.response.status === 401) {
+            // Menampilkan pesan error khusus dalam bahasa Inggris untuk error 401
+            setLoginError("Sorry, the email or password is incorrect. Please enter the correct credentials.");
+          } else {
+            setLoginError(error.response.data.message || "Login failed. Please try again.");
+          }
         } else {
-          alert("Network error. Please try again.");
+          setLoginError("Network error. Please try again.");
         }
       } else if (error instanceof Error) {
-        alert(error.message || "An unexpected error occurred.");
+        setLoginError(error.message || "An unexpected error occurred.");
       } else {
-        alert("An unexpected error occurred.");
+        setLoginError("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);
@@ -231,6 +239,8 @@ export default function Login() {
                   </div>
                 </div>
               </div>
+              {/* Pesan error login yang ditampilkan di bawah input */}
+              {loginError && <p className="text-center text-xs text-red-500">{loginError}</p>}
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input

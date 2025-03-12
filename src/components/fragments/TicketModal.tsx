@@ -337,7 +337,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
 
     const calculatedAmount = convertPrice(formData.selectedTier);
 
-    // Jika tiket gratis, langsung redirect ke halaman sukses
+    // Jika tiket gratis, langsung success tanpa proses Midtrans
     if (calculatedAmount === 0) {
       setSubmitSuccess(true);
       setShowModalSuccess(true);
@@ -354,7 +354,6 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
         setSubmitSuccess(false);
         setShowModalSuccess(false);
         onClose();
-        // router.push("/events/payment-success");
       }, 2000);
       return;
     }
@@ -374,6 +373,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
       setCurrentOrderId(uniqueOrderId);
       setIsPaymentInProgress(true);
 
+      // Kirim seluruh data form, termasuk data tambahan, ke API
       const response = await fetch("/api/midtrans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -384,6 +384,9 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone,
+          position: formData.position,
+          institutionName: formData.institutionName,
+          selectedTier: formData.selectedTier,
         }),
       });
 
@@ -414,7 +417,6 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             setSubmitSuccess(false);
             onClose();
             setShowModalSuccess(false);
-            // router.push("/events/payment-success");
             console.log("Modal should now be visible");
           }, 2000);
         },
@@ -449,7 +451,6 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPaymentInProgress, currentOrderId]);
 
-  // Fungsi untuk menangani konfirmasi refresh melalui modal custom
   const handleConfirmRefresh = () => {
     if (currentOrderId) {
       cancelPayment(currentOrderId);
@@ -462,7 +463,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
     setShowRefreshConfirmModal(false);
   };
 
-  // Tangani Escape untuk menutup modal utama
+  // Tutup modal dengan tombol Escape
   useEffect(() => {
     if (isOpen) {
       const handleEscape = (e: KeyboardEvent) => {
@@ -473,9 +474,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
     }
   }, [isOpen, onClose]);
 
-  // useEffect(() => {
-    console.log("Modal state updated:", modalSuccess);
-  // }, [modalSuccess]);
+  console.log("Modal state updated:", modalSuccess);
 
   if (!isOpen) return null;
 
@@ -541,8 +540,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
               <button
                 type="button"
                 onClick={() => setIsTicketDropdownOpen(!isTicketDropdownOpen)}
-                className={`w-full px-6 py-4 border rounded-xl focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${currentTier.borderColor} ${isTicketDropdownOpen ? "ring-2 ring-offset-2" : ""
-                  }`}
+                className={`w-full px-6 py-4 border rounded-xl focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${currentTier.borderColor} ${isTicketDropdownOpen ? "ring-2 ring-offset-2" : ""}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -554,10 +552,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                       </div>
                     </div>
                   </div>
-                  <ChevronDown
-                    className={`w-5 h-5 transition-transform duration-200 ${isTicketDropdownOpen ? "transform rotate-180" : ""
-                      }`}
-                  />
+                  <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isTicketDropdownOpen ? "transform rotate-180" : ""}`} />
                 </div>
               </button>
               {isTicketDropdownOpen && (
@@ -570,29 +565,16 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                         key={tier}
                         type="button"
                         onClick={() => handleTicketChange(tier)}
-                        className={`w-full px-4 py-3 flex items-center gap-3 ${tierData.bgHover} transition-colors duration-200 ${isSelected ? `bg-gray-50 ${tierData.textColor}` : ""
-                          }`}
+                        className={`w-full px-4 py-3 flex items-center gap-3 ${tierData.bgHover} transition-colors duration-200 ${isSelected ? `bg-gray-50 ${tierData.textColor}` : ""}`}
                       >
                         <span className="text-2xl">{tierData.icon}</span>
                         <div className="flex-1 text-left">
                           <div className="font-semibold">{tier}</div>
-                          <div className={`text-sm ${tierData.textColor}`}>
-                            {tierData.displayPrice}
-                          </div>
+                          <div className={`text-sm ${tierData.textColor}`}>{tierData.displayPrice}</div>
                         </div>
                         {isSelected && (
-                          <svg
-                            className={`w-5 h-5 ${tierData.textColor}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
+                          <svg className={`w-5 h-5 ${tierData.textColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         )}
                       </button>
@@ -611,9 +593,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                       <span className="text-2xl">{currentTier.icon}</span>
                       <h4 className="text-xl font-bold">{formData.selectedTier}</h4>
                     </div>
-                    <p className="text-sm opacity-90 mt-1">
-                      Tickets left: {currentTier.ticketsLeft}
-                    </p>
+                    <p className="text-sm opacity-90 mt-1">Tickets left: {currentTier.ticketsLeft}</p>
                   </div>
                   <div className="text-right">
                     <span className="text-3xl font-bold">{currentTier.displayPrice}</span>
@@ -626,18 +606,8 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                   {currentTier.benefits.map((benefit, index) => (
                     <li key={index} className="flex items-center gap-3">
                       <div className={`p-1 rounded-full ${currentTier.color} bg-opacity-10`}>
-                        <svg
-                          className={`w-4 h-4 ${currentTier.textColor}`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
+                        <svg className={`w-4 h-4 ${currentTier.textColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
                       <span className="text-gray-600">{benefit}</span>
@@ -650,9 +620,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             {/* Personal Information */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  First Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
                 <input
                   type="text"
                   name="firstName"
@@ -664,9 +632,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Last Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
@@ -680,9 +646,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input
                 type="email"
                 name="email"
@@ -695,9 +659,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
               <input
                 type="tel"
                 name="phone"
@@ -711,9 +673,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
 
             {/* Position & Institution/Company Name */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Position
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
               <button
                 type="button"
                 onClick={() => setIsPositionDropdownOpen(!isPositionDropdownOpen)}
@@ -723,10 +683,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                   <span className="text-xl">{positions[formData.position].icon}</span>
                   <span>{positions[formData.position].label}</span>
                 </div>
-                <ChevronDown
-                  className={`w-5 h-5 transition-transform duration-200 ${isPositionDropdownOpen ? "transform rotate-180" : ""
-                    }`}
-                />
+                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isPositionDropdownOpen ? "transform rotate-180" : ""}`} />
               </button>
               {isPositionDropdownOpen && (
                 <div className="absolute z-20 w-full mt-2 bg-white border rounded-xl shadow-lg overflow-hidden">
@@ -735,8 +692,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                       key={pos}
                       type="button"
                       onClick={() => handlePositionChange(pos)}
-                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors duration-200 ${formData.position === pos ? "bg-gray-50 text-blue-600" : ""
-                        }`}
+                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors duration-200 ${formData.position === pos ? "bg-gray-50 text-blue-600" : ""}`}
                     >
                       <span className="text-xl">{positions[pos].icon}</span>
                       <span>{positions[pos].label}</span>
@@ -802,8 +758,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-4 rounded-xl text-white font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r ${currentTier.color} ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`w-full py-4 rounded-xl text-white font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r ${currentTier.color} ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <div className="flex items-center justify-center">
                 {isSubmitting && (
@@ -826,12 +781,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
                 )}
                 {submitSuccess ? (
                   <>
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     Ticket Purchased!
@@ -844,12 +794,14 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
           </form>
         </div>
       </div>
+
       {/* Payment Success Modal */}
       <PaymentSuccessModal
         isOpen={modalSuccess}
         onClose={() => setShowModalSuccess(false)}
       />
-      {/* Custom Refresh Confirmation Modal (ditampilkan di depan Midtrans) */}
+
+      {/* Custom Refresh Confirmation Modal */}
       {showRefreshConfirmModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
           <div className="bg-white rounded-xl p-6 max-w-sm w-full text-center shadow-lg">

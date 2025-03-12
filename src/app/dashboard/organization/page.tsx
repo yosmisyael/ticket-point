@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, ChangeEvent, FormEvent } from "react";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import Image from "next/image";
 
 export default function OrganizationSettings() {
-  // State untuk form organisasi
   const [orgName, setOrgName] = useState("");
   const [logoMode, setLogoMode] = useState<"url" | "upload">("url");
   const [orgLogoUrl, setOrgLogoUrl] = useState("");
@@ -10,7 +12,6 @@ export default function OrganizationSettings() {
   const [orgWebsite, setOrgWebsite] = useState("");
   const [orgDescription, setOrgDescription] = useState("");
 
-  // State error validasi
   const [errors, setErrors] = useState({
     orgName: "",
     orgLogo: "",
@@ -21,22 +22,14 @@ export default function OrganizationSettings() {
   const handleLogoFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setOrgLogoFile(e.target.files[0]);
-      // Jika menggunakan upload, Anda bisa menghapus logo URL agar tidak terjadi konflik
       setOrgLogoUrl("");
     }
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
-    // Validasi form
     let valid = true;
-    const newErrors = {
-      orgName: "",
-      orgLogo: "",
-      orgWebsite: "",
-      orgDescription: "",
-    };
+    const newErrors = { orgName: "", orgLogo: "", orgWebsite: "", orgDescription: "" };
 
     if (orgName.trim() === "") {
       newErrors.orgName = "Nama organisasi harus diisi";
@@ -61,7 +54,6 @@ export default function OrganizationSettings() {
     setErrors(newErrors);
     if (!valid) return;
 
-    // Proses simulasikan penyimpanan data (misalnya, panggil API)
     console.log("Organization Data:", {
       orgName,
       logoMode,
@@ -73,151 +65,78 @@ export default function OrganizationSettings() {
     alert("Informasi organisasi berhasil disimpan!");
   };
 
-  // Preview URL untuk file upload
-  const logoPreviewUrl =
-    logoMode === "upload" && orgLogoFile
-      ? URL.createObjectURL(orgLogoFile)
-      : orgLogoUrl;
+  const logoPreviewUrl = logoMode === "upload" && orgLogoFile ? URL.createObjectURL(orgLogoFile) : orgLogoUrl;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="container mx-auto px-4 py-6">
       <header className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="text-4xl font-semibold text-[var(--color-dark)] sm:text-left">
           Organization Settings
         </h1>
-        <p className="text-gray-600 max-w-2xl">
+        <p className="text-sm text-[var(--color-mid-dark)] my-2 max-w-2xl">
           Ubah informasi organisasi Anda. Informasi ini nantinya akan muncul sebagai
           penyelenggara event saat Anda membuat event.
         </p>
+        <hr className="mt-2 border-slate-100" />
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto">
-        {/* Organization Name */}
-        <div>
-          <label htmlFor="orgName" className="block text-sm font-medium text-gray-700">
-            Organization Name
-          </label>
-          <input
-            type="text"
-            id="orgName"
-            value={orgName}
-            onChange={(e) => setOrgName(e.target.value)}
-            placeholder="Masukkan nama organisasi"
-            className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          />
-          {errors.orgName && (
-            <p className="mt-1 text-xs text-red-500">{errors.orgName}</p>
-          )}
-        </div>
-
-        {/* Pilihan Logo: URL atau Upload */}
-        <div>
-          <span className="block text-sm font-medium text-gray-700 mb-1">
-            Logo Organization
-          </span>
-          <div className="flex gap-4 mb-2">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="logoMode"
-                value="url"
-                checked={logoMode === "url"}
-                onChange={() => setLogoMode("url")}
-                className="form-radio text-blue-600"
-              />
-              <span className="ml-2">URL</span>
+      <Card className="max-w-lg mx-auto p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="orgName" className="block text-sm font-medium text-[var(--color-dark)]">
+              Organization Name
             </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="logoMode"
-                value="upload"
-                checked={logoMode === "upload"}
-                onChange={() => setLogoMode("upload")}
-                className="form-radio text-blue-600"
-              />
-              <span className="ml-2">Upload</span>
-            </label>
-          </div>
-          {logoMode === "url" ? (
             <input
-              key="logoUrl"
               type="text"
-              id="orgLogoUrl"
-              value={orgLogoUrl}
-              onChange={(e) => setOrgLogoUrl(e.target.value)}
-              placeholder="Masukkan URL logo"
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              id="orgName"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-[var(--color-primary-mid)] focus:border-[var(--color-primary-mid)]"
             />
-          ) : (
-            <input
-              key="logoUpload"
-              type="file"
-              accept="image/*"
-              id="orgLogoUpload"
-              onChange={handleLogoFileChange}
-              className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer focus:outline-none"
-            />
-          )}
-          {errors.orgLogo && (
-            <p className="mt-1 text-xs text-red-500">{errors.orgLogo}</p>
-          )}
-          {/* Preview logo */}
-          {logoPreviewUrl && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-600">Preview:</p>
-              <img
-                src={logoPreviewUrl}
-                alt="Logo Preview"
-                className="mt-1 w-24 h-24 object-contain border border-gray-300 rounded"
-              />
+            {errors.orgName && <p className="mt-1 text-xs text-red-500">{errors.orgName}</p>}
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-[var(--color-dark)] mb-1">Logo Organization</span>
+            <div className="flex gap-4 mb-2">
+              <label className="inline-flex items-center">
+                <input type="radio" name="logoMode" value="url" checked={logoMode === "url"} onChange={() => setLogoMode("url")} />
+                <span className="ml-2">URL</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input type="radio" name="logoMode" value="upload" checked={logoMode === "upload"} onChange={() => setLogoMode("upload")} />
+                <span className="ml-2">Upload</span>
+              </label>
             </div>
-          )}
-        </div>
+            {logoMode === "url" ? (
+              <input type="text" id="orgLogoUrl" value={orgLogoUrl} onChange={(e) => setOrgLogoUrl(e.target.value)}
+                className="mt-1 block w-full p-3 border border-gray-300 rounded-lg" />
+            ) : (
+              <input type="file" accept="image/*" id="orgLogoUpload" onChange={handleLogoFileChange} className="mt-1 block w-full" />
+            )}
+            {errors.orgLogo && <p className="mt-1 text-xs text-red-500">{errors.orgLogo}</p>}
+            {logoPreviewUrl && <Image src={logoPreviewUrl} alt="Logo Preview" className="mt-2 w-24 h-24 object-contain" />}
+          </div>
 
-        {/* Website URL */}
-        <div>
-          <label htmlFor="orgWebsite" className="block text-sm font-medium text-gray-700">
-            Website URL
-          </label>
-          <input
-            type="text"
-            id="orgWebsite"
-            value={orgWebsite}
-            onChange={(e) => setOrgWebsite(e.target.value)}
-            placeholder="Masukkan URL website"
-            className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          />
-          {errors.orgWebsite && (
-            <p className="mt-1 text-xs text-red-500">{errors.orgWebsite}</p>
-          )}
-        </div>
+          <div>
+            <label htmlFor="orgWebsite" className="block text-sm font-medium text-[var(--color-dark)]">Website URL</label>
+            <input type="text" id="orgWebsite" value={orgWebsite} onChange={(e) => setOrgWebsite(e.target.value)}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg" />
+            {errors.orgWebsite && <p className="mt-1 text-xs text-red-500">{errors.orgWebsite}</p>}
+          </div>
 
-        {/* Organization Description */}
-        <div>
-          <label htmlFor="orgDescription" className="block text-sm font-medium text-gray-700">
-            Organization Description
-          </label>
-          <textarea
-            id="orgDescription"
-            value={orgDescription}
-            onChange={(e) => setOrgDescription(e.target.value)}
-            placeholder="Masukkan deskripsi organisasi"
-            rows={4}
-            className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          />
-          {errors.orgDescription && (
-            <p className="mt-1 text-xs text-red-500">{errors.orgDescription}</p>
-          )}
-        </div>
+          <div>
+            <label htmlFor="orgDescription" className="block text-sm font-medium text-[var(--color-dark)]">Organization Description</label>
+            <textarea id="orgDescription" value={orgDescription} onChange={(e) => setOrgDescription(e.target.value)} rows={4}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-lg" />
+            {errors.orgDescription && <p className="mt-1 text-xs text-red-500">{errors.orgDescription}</p>}
+          </div>
 
-        <button
-          type="submit"
-          className="w-full py-3 px-4 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors"
-        >
-          Save Organization
-        </button>
-      </form>
+          <Button type="submit" className="w-full text-[var(--color-light)] bg-[var(--color-primary-mid)] hover:bg-[var(--color-primary-dark)] rounded-lg p-3">
+            Save Organization
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }

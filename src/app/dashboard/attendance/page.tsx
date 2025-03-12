@@ -1,8 +1,10 @@
-"use client"
+"use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X } from 'lucide-react';
 import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType, Result } from '@zxing/library';
+import Card from "@/components/ui/Card"; // Pastikan path ini sesuai
+import Button from "@/components/ui/Button"; // Pastikan path ini sesuai
 
 interface TicketData {
     ticketNumber: string;
@@ -64,7 +66,7 @@ const MessageOverlay: React.FC<{
 
     return (
         <div className="fixed inset-0 flex items-end sm:items-start justify-center px-4 py-6 pointer-events-none sm:p-6 z-50">
-            <div className={`max-w-sm w-full shadow-lg rounded-lg pointer-events-auto border ${getColors()} transform transition-all duration-300 ease-in-out`}>
+            <div className={`max-w-sm w-full shadow-lg rounded-lg pointer-events-auto border ${getColors()} transform transition-all duration-300 ease-in-out}`}>
                 <div className="p-4">
                     <div className="flex items-start">
                         <div className="flex-shrink-0">
@@ -91,26 +93,18 @@ const MessageOverlay: React.FC<{
 };
 
 export default function TicketCheckIn() {
-    // State for camera
     const [isCameraActive, setIsCameraActive] = useState(false);
     const [cameraError, setError] = useState<string>('');
     const videoRef = useRef<HTMLVideoElement>(null);
     const controlsRef = useRef<IScannerControls | null>(null);
     const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    // State for ticket verification
     const [isVerifying, setIsVerifying] = useState(false);
     const [ticketVerified, setTicketVerified] = useState(false);
     const [ticketNumber, setTicketNumber] = useState('');
-
-    // State for ticket data
     const [ticketData, setTicketData] = useState<TicketData | null>(null);
     const [lastScannedCode, setLastScannedCode] = useState<string>('');
-
-    // State for messages
     const [message, setMessage] = useState<Message | null>(null);
 
-    // Auto-hide message after 5 seconds
     useEffect(() => {
         if (message) {
             const timer = setTimeout(() => {
@@ -120,7 +114,7 @@ export default function TicketCheckIn() {
         }
     }, [message]);
 
-    // Camera handling functions
+
     const startCamera = async () => {
         try {
             if (!videoRef.current) return;
@@ -137,11 +131,10 @@ export default function TicketCheckIn() {
             ]);
 
             const codeReader = new BrowserMultiFormatReader(hints);
-
             controlsRef.current = await codeReader.decodeFromVideoDevice(
                 undefined,
                 videoRef.current,
-                (result: Result | null, error: Error | undefined) => {
+                (result?: Result, error?: Error) => { // Menggunakan '?' untuk parameter result
                     if (result) {
                         const scannedCode = result.getText();
                         if (scannedCode !== lastScannedCode) {
@@ -149,12 +142,10 @@ export default function TicketCheckIn() {
                             setTicketNumber(scannedCode);
                             verifyTicket(scannedCode);
 
-                            // Clear previous timeout if exists
                             if (scanTimeoutRef.current) {
                                 clearTimeout(scanTimeoutRef.current);
                             }
 
-                            // Set a timeout to allow scanning the same code again after 5 seconds
                             scanTimeoutRef.current = setTimeout(() => {
                                 setLastScannedCode('');
                             }, 5000);
@@ -254,7 +245,18 @@ export default function TicketCheckIn() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="container mx-auto px-4 py-6">
+            {/* Header */}
+            <header className="mb-8">
+                <h1 className="text-4xl font-semibold text-[var(--color-dark)]">
+                    Ticket Check-in
+                </h1>
+                <p className="text-sm text-[var(--color-mid-dark)] my-2 max-w-2xl">
+                    Scan QR codes or barcodes to check in attendees. You can also enter ticket numbers manually.
+                </p>
+                <hr className="mt-2 border-slate-100" />
+            </header>
+
             {/* Message Overlay */}
             {message && (
                 <MessageOverlay
@@ -263,195 +265,182 @@ export default function TicketCheckIn() {
                 />
             )}
 
-            <header className="mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-                    Ticket Check-in
-                </h1>
-                <p className="text-gray-600 max-w-2xl">
-                    Scan QR codes or barcodes to check in attendees. You can also enter ticket numbers manually.
-                </p>
-            </header>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Camera and Ticket Number Section */}
-                <div className="space-y-6">
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Code Scanner
-                            </label>
-                            <div className="relative">
-                                <video
-                                    ref={videoRef}
-                                    className="w-full h-[300px] object-cover rounded-lg bg-black"
-                                />
-                                {isCameraActive ? (
+                <Card className="p-6">
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-[var(--color-dark)] mb-2">
+                            Code Scanner
+                        </label>
+                        <div className="relative">
+                            <video
+                                ref={videoRef}
+                                className="w-full h-[300px] object-cover rounded-lg bg-black"
+                            />
+                            {isCameraActive ? (
+                                <button
+                                    onClick={stopCamera}
+                                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                                >
+                                    <Camera className="h-5 w-5" />
+                                </button>
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 rounded-lg">
                                     <button
-                                        onClick={stopCamera}
-                                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                                        onClick={startCamera}
+                                        className="flex items-center space-x-2 bg-[var(--color-primary-mid)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-primary-dark)] transition-colors"
                                     >
                                         <Camera className="h-5 w-5" />
+                                        <span>Start Scanner</span>
                                     </button>
-                                ) : (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 rounded-lg">
-                                        <button
-                                            onClick={startCamera}
-                                            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                                        >
-                                            <Camera className="h-5 w-5" />
-                                            <span>Start Scanner</span>
-                                        </button>
-                                        {cameraError && (
-                                            <p className="mt-2 text-sm text-red-500">{cameraError}</p>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Ticket Number
-                            </label>
-                            <div className="flex gap-4">
-                                <input
-                                    type="text"
-                                    value={ticketNumber}
-                                    onChange={(e) => setTicketNumber(e.target.value)}
-                                    placeholder="Enter ticket number"
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                />
-                                <button
-                                    onClick={() => verifyTicket(ticketNumber)}
-                                    disabled={isVerifying || !ticketNumber}
-                                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
-                                >
-                                    {isVerifying ? (
-                                        <>
-                                            <Loader2 className="h-5 w-5 animate-spin" />
-                                            <span>Checking...</span>
-                                        </>
-                                    ) : (
-                                        <span>Check</span>
+                                    {cameraError && (
+                                        <p className="mt-2 text-sm text-red-500">{cameraError}</p>
                                     )}
-                                </button>
-                            </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-sm font-medium text-[var(--color-dark)]">
+                            Ticket Number
+                        </label>
+                        <div className="flex gap-4">
+                            <input
+                                type="text"
+                                value={ticketNumber}
+                                onChange={(e) => setTicketNumber(e.target.value)}
+                                placeholder="Enter ticket number"
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-[var(--color-primary-mid)] focus:border-[var(--color-primary-mid)]"
+                            />
+                            <Button
+                                onClick={() => verifyTicket(ticketNumber)}
+                                disabled={isVerifying || !ticketNumber}
+                                className="flex items-center gap-2 bg-[var(--color-primary-mid)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-primary-dark)] transition-colors"
+                            >
+                                {isVerifying ? (
+                                    <>
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        <span>Checking...</span>
+                                    </>
+                                ) : (
+                                    <span>Check</span>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
 
                 {/* Attendee Information Section */}
-                <div className="space-y-6">
-                    <div className={`bg-white p-6 rounded-lg shadow-sm ${!ticketVerified ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                            Attendee Information
-                        </h2>
+                <Card className={`p-6 ${!ticketVerified ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <h2 className="text-xl font-semibold text-[var(--color-dark)] mb-6">
+                        Attendee Information
+                    </h2>
 
-                        {ticketVerified && ticketData ? (
-                            <>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            First Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={ticketData.firstName}
-                                            readOnly
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Last Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={ticketData.lastName}
-                                            readOnly
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Email
-                                        </label>
-                                        <input
-                                            type="email"
-                                            value={ticketData.email}
-                                            readOnly
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Phone Number
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            value={ticketData.phoneNumber}
-                                            readOnly
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Organization
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={ticketData.organizationName}
-                                            readOnly
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Tier
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={ticketData.tier}
-                                            readOnly
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                                        />
-                                    </div>
+                    {ticketVerified && ticketData ? (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-[var(--color-dark)] mb-2">
+                                        First Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={ticketData.firstName}
+                                        readOnly
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                                    />
                                 </div>
 
-                                <div className="mt-6 space-y-2 text-sm text-gray-600">
-                                    <p>Purchase Date: {ticketData.purchaseDate}</p>
-                                    <p>Status: {ticketData.status}</p>
-                                    {ticketData.timeChecked && <p>Time Checked: {ticketData.timeChecked}</p>}
+                                <div>
+                                    <label className="block text-sm font-medium text-[var(--color-dark)] mb-2">
+                                        Last Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={ticketData.lastName}
+                                        readOnly
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                                    />
                                 </div>
 
-                                <div className="mt-6 flex gap-4">
-                                    <button
-                                        onClick={handleCheckIn}
-                                        disabled={ticketData.status === 'checked'}
-                                        className="flex-1 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                    >
-                                        {ticketData.status === 'checked' ? 'Already Checked In' : 'Check In'}
-                                    </button>
-                                    <button
-                                        onClick={handleCancel}
-                                        className="flex-1 bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
+                                <div>
+                                    <label className="block text-sm font-medium text-[var(--color-dark)] mb-2">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={ticketData.email}
+                                        readOnly
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                                    />
                                 </div>
-                            </>
-                        ) : (
-                            <div className="text-center py-8 text-gray-500">
-                                Enter a ticket number or scan a code to view attendee information
+
+                                <div>
+                                    <label className="block text-sm font-medium text-[var(--color-dark)] mb-2">
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        value={ticketData.phoneNumber}
+                                        readOnly
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-[var(--color-dark)] mb-2">
+                                        Organization
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={ticketData.organizationName}
+                                        readOnly
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-[var(--color-dark)] mb-2">
+                                        Tier
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={ticketData.tier}
+                                        readOnly
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                                    />
+                                </div>
                             </div>
-                        )}
-                    </div>
-                </div>
+
+                            <div className="mt-6 space-y-2 text-sm text-gray-600">
+                                <p>Purchase Date: {ticketData.purchaseDate}</p>
+                                <p>Status: {ticketData.status}</p>
+                                {ticketData.timeChecked && <p>Time Checked: {ticketData.timeChecked}</p>}
+                            </div>
+
+                            <div className="mt-6 flex gap-4">
+                                <Button
+                                    onClick={handleCheckIn}
+                                    disabled={ticketData.status === 'checked'}
+                                    className="flex-1"
+                                >
+                                    {ticketData.status === 'checked' ? 'Already Checked In' : 'Check In'}
+                                </Button>
+                                <Button
+                                    onClick={handleCancel}
+                                    className="flex-1 bg-gray-500 hover:bg-gray-600 transition-colors"
+                                >
+                                    Cancel
+                                </Button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            Enter a ticket number or scan a code to view attendee information
+                        </div>
+                    )}
+                </Card>
             </div>
         </div>
     );

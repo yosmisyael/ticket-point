@@ -418,7 +418,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ isOpen, onClose, eventData })
             console.log("Modal should now be visible");
           }, 2000);
         },
-        onPending: (result) => {
+        onPending: () => {
           setError("Payment is pending. Please check your email for confirmation.");
         },
         onError: (result) => {

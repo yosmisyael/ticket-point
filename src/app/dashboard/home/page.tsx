@@ -27,9 +27,12 @@ export default function DashboardHome() {
     return (
         <div className="p-5">
             <div className="mb-10">
-                <h1 className="mx-2 text-6xl font-semibold font-inter text-[var(--color-dark)]">Welcome, {name} </h1>
+                <h1 className="mx-2 text-4xl font-semibold font-inter text-[var(--color-dark-mid)]">Welcome, <span className="text-[var(--color-primary-mid)]">{name}</span> </h1>
+                <p className="mt-2 mx-2 text-lg text-gray-600">
+                    Explore the latest events and stay updated with whats happening.
+                </p>
             </div>
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 ">
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                 {events.map((event, index) => (
                     <Card key={index} id={event.id} title={event.title} description={event.description} path="home" imageUrl={event.imageUrl} />
                 ))}

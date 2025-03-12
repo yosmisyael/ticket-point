@@ -2,12 +2,12 @@
 import React, { useState } from "react";
 import { User, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { NextFont } from "next/dist/compiled/@next/font";
 import { Poppins } from "next/font/google";
 import { motion, useAnimation } from "framer-motion";
 import { useRouter } from "next/navigation";
+import axios, { AxiosError } from "axios";
 
-const poppins: NextFont = Poppins({
+const poppins = Poppins({
   weight: ["200", "400", "800"],
   subsets: ["latin"],
 });
@@ -47,11 +47,15 @@ function Loader() {
           box-sizing: content-box;
           border-radius: 0 0 40% 40%;
           -webkit-mask: linear-gradient(#000 0 0) bottom/4px 2px no-repeat,
-            linear-gradient(#000 0 0);
+                          linear-gradient(#000 0 0);
           -webkit-mask-composite: destination-out;
                   mask-composite: exclude;
-          background: linear-gradient(var(--d, 0deg), var(--c2) 50%, #0000 0)
-              bottom/100% 205%,
+          background: linear-gradient(
+              var(--d, 0deg),
+              var(--c2) 50%,
+              transparent 0
+            )
+            bottom/100% 205%,
             linear-gradient(var(--c2) 0 0) center/0 100%;
           background-repeat: no-repeat;
           animation: l5-1 2s infinite linear;
@@ -63,20 +67,12 @@ function Loader() {
           --d: 180deg;
         }
         @keyframes l5-0 {
-          80% {
-            transform: rotate(0);
-          }
-          100% {
-            transform: rotate(0.5turn);
-          }
+          80% { transform: rotate(0); }
+          100% { transform: rotate(0.5turn); }
         }
         @keyframes l5-1 {
-          10%, 70% {
-            background-size: 100% 205%, var(--s, 0) 100%;
-          }
-          70%, 100% {
-            background-position: top, center;
-          }
+          10%, 70% { background-size: 100% 205%, var(--s, 0) 100%; }
+          70%, 100% { background-position: top, center; }
         }
       `}</style>
     </div>
@@ -87,41 +83,65 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // State untuk validasi input
+  // Input states for email and password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
-
   const controls = useAnimation();
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let valid = true;
     const newErrors = { email: "", password: "" };
+
     if (email.trim() === "") {
-      newErrors.email = "Email harus diisi";
+      newErrors.email = "Email is required";
       valid = false;
     }
     if (password.trim() === "") {
-      newErrors.password = "Password harus diisi";
+      newErrors.password = "Password is required";
       valid = false;
     }
     setErrors(newErrors);
     if (!valid) return;
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/login`,
+        { email, password }
+      );
+
+      // Assume API returns the user object with id, email, name, and token
+      const user = response.data.data;
+      console.log("Login response:", user);
+
+      // Save the entire user object in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Redirect to the dashboard/home upon successful login.
+      window.location.href = "/dashboard/home";
+    } catch (error: unknown) {
+      console.error("Login error:", error);
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          alert(error.response.data.message || "Login failed. Please try again.");
+        } else {
+          alert("Network error. Please try again.");
+        }
+      } else if (error instanceof Error) {
+        alert(error.message || "An unexpected error occurred.");
+      } else {
+        alert("An unexpected error occurred.");
+      }
+    } finally {
       setLoading(false);
-      // Logika login atau navigasi bisa ditempatkan di sini
-    }, 2000);
+    }
   };
 
-  // Fungsi transisi ke halaman register
   const handleTransitionToRegister = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    // Animasi geser form login ke kiri
     await controls.start({ x: -100, opacity: 0, transition: { duration: 0.5 } });
     router.push("/auth/register");
   };
@@ -133,10 +153,7 @@ export default function Login() {
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link
-              href="/"
-              className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}
-            >
+            <Link href="/" className={`${poppins.className} flex items-center space-x-3`}>
               <span className="self-center text-3xl font-bold whitespace-nowrap">
                 <span className="text-primary-dark">Ticket</span>
                 <span className="text-alternative-mid">Point</span>
@@ -148,29 +165,24 @@ export default function Login() {
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
               >
                 <User className="h-5 w-5 mr-2" />
-                <span onClick={handleTransitionToRegister} className="transition-all duration-300">Daftar</span>
+                <span onClick={handleTransitionToRegister} className="transition-all duration-300">
+                  Register
+                </span>
               </Link>
             </div>
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <main className="pt-16 flex min-h-screen">
-        {/* Login Form Section */}
         <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 transition-all duration-500 transform">
-          <motion.div
-            initial={{ x: 0, opacity: 1 }}
-            animate={controls}
-            className="max-w-md w-full space-y-8"
-          >
+          <motion.div initial={{ x: 0, opacity: 1 }} animate={controls} className="max-w-md w-full space-y-8">
             <div className="text-center">
               <h2 className="mt-6 text-4xl font-extrabold text-gray-900 tracking-tight">
                 Login
               </h2>
-              <p className="mt-2 text-xl text-gray-600">Hi, Selamat datang 👋</p>
+              <p className="mt-2 text-xl text-gray-600">Hi, welcome 👋</p>
             </div>
-
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div>
@@ -184,12 +196,11 @@ export default function Login() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
-                      placeholder="contoh@email.com"
+                      placeholder="example@email.com"
                     />
                     {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
                   </div>
                 </div>
-
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                     Password
@@ -201,7 +212,7 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 pr-10"
-                      placeholder="Masukkan password"
+                      placeholder="Enter your password"
                     />
                     <button
                       type="button"
@@ -220,7 +231,6 @@ export default function Login() {
                   </div>
                 </div>
               </div>
-
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
@@ -232,43 +242,39 @@ export default function Login() {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-colors duration-300"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                    Ingat Saya
+                    Remember Me
                   </label>
                 </div>
-
                 <div className="text-sm">
                   <a
                     href="/auth/resetpw"
                     className="font-medium text-alternative-mid hover:text-yellow-500 transition-all duration-300"
                   >
-                    Lupa Password?
+                    Forgot Password?
                   </a>
                 </div>
               </div>
-
               <button
                 type="submit"
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-primary-mid hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-[1.02]"
               >
-                MASUK
+                LOGIN
               </button>
-
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  Belum punya akun?{" "}
+                  Don't have an account?{" "}
                   <a
                     href="/auth/register"
                     onClick={handleTransitionToRegister}
                     className="font-medium text-alternative-mid hover:text-yellow-500 transition-all duration-300"
                   >
-                    Daftar Disini
+                    Register Here
                   </a>
                 </p>
               </div>
             </form>
           </motion.div>
         </div>
-
         {/* Image Section */}
         <div
           className="hidden lg:block w-1/2 bg-cover bg-center transition-all duration-500"

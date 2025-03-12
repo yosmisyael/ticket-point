@@ -1,60 +1,53 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { User } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { NextFont } from "next/dist/compiled/@next/font";
 import { Poppins } from "next/font/google";
+import axios, { AxiosError } from "axios";
 
-const poppins: NextFont = Poppins({
+const poppins = Poppins({
   weight: ["200", "400", "800"],
   subsets: ["latin"],
 });
 
+// OTP Input component returns the OTP code via the onChange callback.
 interface VerificationInputProps {
   length: number;
-  onComplete: (code: string) => void;
+  onChange?: (code: string) => void;
 }
-
-const VerificationInput: React.FC<VerificationInputProps> = ({
-  length,
-  onComplete,
-}) => {
+const VerificationInput: React.FC<VerificationInputProps> = ({ length, onChange }) => {
   const [code, setCode] = useState<string[]>(Array(length).fill(""));
-  const inputRefs = Array(length)
-    .fill(null)
-    .map(() => useRef<HTMLInputElement>(null));
+  const inputRefs = useRef<Array<React.RefObject<HTMLInputElement>>>([]);
 
   useEffect(() => {
-    inputRefs[0].current?.focus();
+    inputRefs.current = Array.from({ length }, () => React.createRef<HTMLInputElement>());
+  }, [length]);
+
+  useEffect(() => {
+    inputRefs.current[0].current?.focus();
   }, []);
 
   useEffect(() => {
-    if (code.every((digit) => digit !== "")) {
-      onComplete(code.join(""));
+    if (onChange) {
+      onChange(code.join(""));
     }
-  }, [code, onComplete]);
+  }, [code, onChange]);
 
   const handleChange = (value: string, index: number) => {
-    if (!/^\d*$/.test(value)) return;
-
+    if (!/^\d*$/.test(value)) return; // only digits allowed
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
-
     if (value && index < length - 1) {
-      inputRefs[index + 1].current?.focus();
+      inputRefs.current[index + 1].current?.focus();
     }
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       const newCode = [...code];
       newCode[index - 1] = "";
       setCode(newCode);
-      inputRefs[index - 1].current?.focus();
+      inputRefs.current[index - 1].current?.focus();
     }
   };
 
@@ -62,7 +55,6 @@ const VerificationInput: React.FC<VerificationInputProps> = ({
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").slice(0, length);
     if (!/^\d*$/.test(pastedData)) return;
-
     const newCode = [...code];
     pastedData.split("").forEach((char, index) => {
       if (index < length) newCode[index] = char;
@@ -75,15 +67,15 @@ const VerificationInput: React.FC<VerificationInputProps> = ({
       {code.map((digit, index) => (
         <input
           key={index}
-          ref={inputRefs[index]}
+          ref={inputRefs.current[index]}
           type="text"
           maxLength={1}
           value={digit}
           onChange={(e) => handleChange(e.target.value, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
           onPaste={handlePaste}
-          className="text-4xl text-center rounded-xl border border-gray-300 h-[55px] text-zinc-600 w-[62px] max-sm:text-3xl max-sm:h-[45px] max-sm:w-[50px] focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
-          aria-label={`Verification code digit ${index + 1}`}
+          className="text-4xl text-center rounded-xl border border-gray-300 h-[55px] w-[62px] max-sm:text-3xl max-sm:h-[45px] max-sm:w-[50px] focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+          aria-label={`Digit ${index + 1}`}
         />
       ))}
     </div>
@@ -91,11 +83,23 @@ const VerificationInput: React.FC<VerificationInputProps> = ({
 };
 
 export default function Verify() {
-  const [email] = useState("example@gmail.com");
+  const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState<number | null>(null);
+  const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
+  // Retrieve email and userId from URL query parameters.
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const emailParam = queryParams.get("email");
+    const idParam = queryParams.get("id");
+    if (emailParam) setEmail(emailParam);
+    if (idParam) setUserId(Number(idParam));
+  }, []);
+
+  // Timer for the resend OTP functionality.
   useEffect(() => {
     if (resendTimer > 0 && !canResend) {
       const timer = setInterval(() => {
@@ -107,34 +111,89 @@ export default function Verify() {
     }
   }, [resendTimer, canResend]);
 
-  const handleVerificationComplete = async (code: string) => {
+  // Function to verify OTP.
+  const handleVerificationComplete = async () => {
+    if (!userId) {
+      alert("User ID not found.");
+      return;
+    }
+    if (otp.length !== 6) {
+      alert("OTP must be 6 digits.");
+      return;
+    }
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Verification code:", code);
-    setIsLoading(false);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/verify-email`,
+        {
+          id: userId,
+          token: otp,
+        }
+      );
+      console.log("Verification successful:", response.data);
+      // After successful verification, redirect to login (or dashboard if appropriate)
+      window.location.href = "/auth/login";
+    } catch (error: unknown) {
+      console.error("Verification error:", error);
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          alert(error.response.data.message || "Verification failed. Please try again.");
+        } else {
+          alert("Network error. Please try again.");
+        }
+      } else if (error instanceof Error) {
+        alert(error.message || "An error occurred.");
+      } else {
+        alert("An error occurred. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // Function to resend OTP.
+  // Now we only send the email, letting the server retrieve the password from the database.
   const handleResendCode = async () => {
+    if (!email) {
+      alert("Email not available.");
+      return;
+    }
     if (!canResend) return;
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setResendTimer(30);
-    setCanResend(false);
-    setIsLoading(false);
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/request-token`,
+        {
+          email,
+        }
+      );
+      alert("OTP has been resent.");
+      setResendTimer(30);
+      setCanResend(false);
+    } catch (error: unknown) {
+      console.error("Resend OTP error:", error);
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          alert(error.response.data.message || "Failed to resend OTP. Please try again.");
+        } else {
+          alert("Network error. Please try again.");
+        }
+      } else if (error instanceof Error) {
+        alert(error.message || "An error occurred.");
+      } else {
+        alert("An error occurred. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link
-              href="/"
-              className={`${poppins.className} flex items-center space-x-3 rtl:space-x-reverse`}
-            >
+            <Link href="/" className={`${poppins.className} flex items-center space-x-3`}>
               <span className="self-center text-3xl font-bold whitespace-nowrap">
                 <span className="text-primary-dark">Ticket</span>
                 <span className="text-alternative-mid">Point</span>
@@ -143,52 +202,40 @@ export default function Verify() {
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
       <main className="pt-16 flex min-h-screen">
-        {/* Verification Form Section */}
         <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
           <div className="max-w-md w-full space-y-8">
             <div className="text-center">
-              <h2 className="mt-6 text-4xl font-extrabold text-gray-900 tracking-tight">
-                Verify your account
-              </h2>
+              <h2 className="mt-6 text-4xl font-extrabold text-gray-900">Account Verification</h2>
               <p className="mt-2 text-xl text-gray-600">
-                Masukkan kode yang ada di {email}
+                Enter the OTP sent to <br /> <strong>{email}</strong>
               </p>
             </div>
-
             <div className="mt-8">
               <div className="flex flex-col items-center">
-                <VerificationInput
-                  length={6}
-                  onComplete={handleVerificationComplete}
-                />
-
-                <button 
-                  className={`w-[422px] flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 max-sm:w-[335px] ${
-                    isLoading ? 'opacity-70 cursor-not-allowed' : 'transform hover:scale-[1.02]'
+                <VerificationInput length={6} onChange={setOtp} />
+                <button
+                  onClick={handleVerificationComplete}
+                  className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ${
+                    isLoading ? "opacity-70 cursor-not-allowed" : "transform hover:scale-[1.02]"
                   }`}
                   disabled={isLoading}
                 >
-                  {isLoading ? "Processing..." : "Lanjut"}
+                  {isLoading ? "Processing..." : "Verify"}
                 </button>
-
                 <div className="mt-4 text-center">
                   <p className="text-sm text-gray-600">
-                    Belum dapat kode?{" "}
+                    Didn't receive the code?{" "}
                     {canResend ? (
                       <button
                         onClick={handleResendCode}
                         className="font-medium text-yellow-400 hover:text-yellow-500 transition-all duration-300"
                         disabled={isLoading}
                       >
-                        Kirim Ulang
+                        Resend OTP
                       </button>
                     ) : (
-                      <span className="text-gray-400">
-                        Kirim ulang dalam {resendTimer}s
-                      </span>
+                      <span className="text-gray-400">Resend in {resendTimer}s</span>
                     )}
                   </p>
                 </div>

@@ -11,7 +11,11 @@
   "dependencies": {
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
+<<<<<<< HEAD
     "axios": "^1.8.3",
+=======
+    "axios": "^1.8.2",
+>>>>>>> c6e967a (Feat: Login And Register Feature)
     "canvas-confetti": "^1.9.3",
     "chart.js": "^4.4.8",
     "clsx": "^2.1.1",

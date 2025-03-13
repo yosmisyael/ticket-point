@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { Poppins } from "next/font/google";
@@ -83,7 +83,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Input states for email dan password
+  // Input states untuk email dan password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
@@ -91,6 +91,16 @@ export default function Login() {
   const [loginError, setLoginError] = useState("");
   const controls = useAnimation();
   const router = useRouter();
+
+  // Jika sudah login, redirect pengguna agar tidak mengakses halaman login.
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    // Redirect hanya jika berada di /auth/login
+    if (storedUser && window.location.pathname === "/auth/login") {
+      router.back();
+      // Atau gunakan: router.push("/dashboard/home");
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,7 +140,6 @@ export default function Login() {
       if (error instanceof AxiosError) {
         if (error.response) {
           if (error.response.status === 401) {
-            // Menampilkan pesan error khusus dalam bahasa Inggris untuk error 401
             setLoginError("Sorry, the email or password is incorrect. Please enter the correct credentials.");
           } else {
             setLoginError(error.response.data.message || "Login failed. Please try again.");
@@ -256,8 +265,10 @@ export default function Login() {
                   </label>
                 </div>
                 <div className="text-sm">
+                  {/* Saat klik forgot password, set flag agar reset password page bisa diakses */}
                   <a
                     href="/auth/resetpw"
+                    onClick={() => sessionStorage.setItem("allowResetPassword", "true")}
                     className="font-medium text-alternative-mid hover:text-yellow-500 transition-all duration-300"
                   >
                     Forgot Password?

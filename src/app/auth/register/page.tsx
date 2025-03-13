@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { Poppins } from "next/font/google";
@@ -24,7 +24,8 @@ function Loader() {
           height: 80px;
           border-top: 4px solid var(--c1);
           border-bottom: 4px solid var(--c1);
-          background: linear-gradient(90deg, var(--c1) 2px, var(--c2) 0 5px, var(--c1) 0) 50%/7px 8px no-repeat;
+          background: linear-gradient(90deg, var(--c1) 2px, var(--c2) 0 5px, var(--c1) 0)
+            50%/7px 8px no-repeat;
           display: grid;
           overflow: hidden;
           animation: l5-0 2s infinite linear;
@@ -44,7 +45,8 @@ function Loader() {
                           linear-gradient(#000 0 0);
           -webkit-mask-composite: destination-out;
                   mask-composite: exclude;
-          background: linear-gradient(var(--d, 0deg), var(--c2) 50%, #0000 0) bottom/100% 205%,
+          background: linear-gradient(var(--d, 0deg), var(--c2) 50%, #0000 0)
+                      bottom/100% 205%,
                       linear-gradient(var(--c2) 0 0) center/0 100%;
           background-repeat: no-repeat;
           animation: l5-1 2s infinite linear;
@@ -74,15 +76,22 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [errors, setErrors] = useState({
     name: "",
     email: "",
     password: "",
   });
-
   const controls = useAnimation();
   const router = useRouter();
+
+  // Jika user sudah login, redirect agar tidak bisa mengakses register.
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      router.back();
+      // Atau bisa juga: router.push("/dashboard/home");
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +112,8 @@ export default function Register() {
     } else if (
       !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)
     ) {
-      newErrors.password = "Password minimal 8 karakter, terdapat huruf kapital, angka, dan simbol";
+      newErrors.password =
+        "Password minimal 8 karakter, terdapat huruf kapital, angka, dan simbol";
       valid = false;
     }
     setErrors(newErrors);
@@ -116,9 +126,11 @@ export default function Register() {
         `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users`,
         { name, email, password }
       );
-      // Response contoh: { data: { id, email, name } }
+      // Contoh respons: { data: { id, email, name } }
       const userId = response.data.data.id;
-      // Redirect ke halaman verifikasi dengan query param email dan id
+      // Set flag agar OTP page bisa diakses (hanya untuk user yang baru register)
+      sessionStorage.setItem("allowVerify", "true");
+      // Redirect ke halaman verifikasi dengan query parameter email dan id
       window.location.href = `/auth/verify?email=${encodeURIComponent(email)}&id=${userId}`;
     } catch (error: unknown) {
       console.error("Registration error:", error);
@@ -168,7 +180,9 @@ export default function Register() {
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300"
               >
                 <User className="h-5 w-5 mr-2" />
-                <span onClick={handleTransitionToLogin}>Login</span>
+                <span onClick={handleTransitionToLogin} className="transition-all duration-300">
+                  Login
+                </span>
               </Link>
             </div>
           </div>

@@ -1,16 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Navbar from "@/components/fragments/dashboard/Navbar";
 import Sidebar from "@/components/fragments/dashboard/Sidebar";
 import SidebarSettings from "@/components/fragments/dashboard/settings/Sidebar";
-import { usePathname } from "next/navigation";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
+// Fungsi pembantu untuk mengubah string ke Title Case
+const toTitleCase = (str: string): string => {
+  return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
+
 export default function DashboardLayout({ children }: LayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [name, setName] = useState("");
+
+  // Check if the user is logged in by verifying that a user object exists in localStorage.
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      router.push("/auth/login");
+    } else {
+      try {
+        const userObj = JSON.parse(storedUser);
+        if (userObj && userObj.name) {
+          setName(toTitleCase(userObj.name));
+        } else {
+          router.push("/auth/login");
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        router.push("/auth/login");
+      }
+    }
+  }, [router]);
 
   return (
     <div

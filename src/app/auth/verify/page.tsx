@@ -3,13 +3,14 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Poppins } from "next/font/google";
 import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 
 const poppins = Poppins({
   weight: ["200", "400", "800"],
   subsets: ["latin"],
 });
 
-// OTP Input component returns the OTP code via the onChange callback.
+// Komponen input OTP
 interface VerificationInputProps {
   length: number;
   onChange?: (code: string) => void;
@@ -27,13 +28,11 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ length, onChange 
   }, []);
 
   useEffect(() => {
-    if (onChange) {
-      onChange(code.join(""));
-    }
+    if (onChange) onChange(code.join(""));
   }, [code, onChange]);
 
   const handleChange = (value: string, index: number) => {
-    if (!/^\d*$/.test(value)) return; // only digits allowed
+    if (!/^\d*$/.test(value)) return;
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
@@ -83,6 +82,7 @@ const VerificationInput: React.FC<VerificationInputProps> = ({ length, onChange 
 };
 
 export default function Verify() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
   const [otp, setOtp] = useState("");
@@ -90,28 +90,33 @@ export default function Verify() {
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
-  // Retrieve email and userId from URL query parameters.
+  // Cek apakah user sudah login atau tidak berasal dari register.
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const allowVerify = sessionStorage.getItem("allowVerify");
+    // Jika user sudah login atau flag tidak ada, redirect ke login/dashboard.
+    if (storedUser || !allowVerify) {
+      router.push("/auth/login");
+      return;
+    }
+    // Ambil parameter query (email dan id) dari URL.
     const queryParams = new URLSearchParams(window.location.search);
     const emailParam = queryParams.get("email");
     const idParam = queryParams.get("id");
     if (emailParam) setEmail(emailParam);
     if (idParam) setUserId(Number(idParam));
-  }, []);
+  }, [router]);
 
-  // Timer for the resend OTP functionality.
+  // Timer untuk fungsi resend OTP.
   useEffect(() => {
     if (resendTimer > 0 && !canResend) {
-      const timer = setInterval(() => {
-        setResendTimer((prev) => prev - 1);
-      }, 1000);
+      const timer = setInterval(() => setResendTimer((prev) => prev - 1), 1000);
       return () => clearInterval(timer);
     } else if (resendTimer === 0) {
       setCanResend(true);
     }
   }, [resendTimer, canResend]);
 
-  // Function to verify OTP.
   const handleVerificationComplete = async () => {
     if (!userId) {
       alert("User ID not found.");
@@ -125,13 +130,12 @@ export default function Verify() {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/verify-email`,
-        {
-          id: userId,
-          token: otp,
-        }
+        { id: userId, token: otp }
       );
       console.log("Verification successful:", response.data);
-      // After successful verification, redirect to login (or dashboard if appropriate)
+      // Setelah verifikasi berhasil, hapus flag agar halaman ini tidak dapat diakses lagi.
+      sessionStorage.clear(); // atau sessionStorage.removeItem("allowVerify") jika hanya flag tersebut.
+      // Redirect ke halaman login (atau dashboard jika diinginkan)
       window.location.href = "/auth/login";
     } catch (error: unknown) {
       console.error("Verification error:", error);
@@ -151,8 +155,6 @@ export default function Verify() {
     }
   };
 
-  // Function to resend OTP.
-  // Now we only send the email, letting the server retrieve the password from the database.
   const handleResendCode = async () => {
     if (!email) {
       alert("Email not available.");
@@ -163,9 +165,7 @@ export default function Verify() {
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/request-token`,
-        {
-          email,
-        }
+        { email }
       );
       alert("OTP has been resent.");
       setResendTimer(30);
@@ -247,3 +247,5 @@ export default function Verify() {
     </div>
   );
 }
+
+

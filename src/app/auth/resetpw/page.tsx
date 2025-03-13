@@ -1,9 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import { UserCircle, ChevronDown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { UserCircle } from "lucide-react";
 import Link from "next/link";
 import { NextFont } from "next/dist/compiled/@next/font";
 import { Poppins } from "next/font/google";
+import { useRouter } from "next/navigation";
 
 const poppins: NextFont = Poppins({
   weight: ["200", "400", "800"],
@@ -11,11 +12,26 @@ const poppins: NextFont = Poppins({
 });
 
 function App() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const allowReset = sessionStorage.getItem("allowResetPassword");
+
+    if (storedUser) {
+      // Jika user sudah login, arahkan ke dashboard/home
+      router.push("/dashboard/home");
+    } else if (!allowReset) {
+      // Jika flag reset tidak di-set, arahkan ke halaman login
+      router.push("/auth/login");
+    }
+  }, [router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Reset password for:", email);
+    // Lakukan proses reset password sesuai kebutuhan...
   };
 
   return (

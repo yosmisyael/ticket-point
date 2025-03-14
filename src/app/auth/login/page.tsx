@@ -83,11 +83,9 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Input states untuk email dan password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
-  // State untuk error login yang muncul di bawah input
   const [loginError, setLoginError] = useState("");
   const controls = useAnimation();
   const router = useRouter();
@@ -122,7 +120,7 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/login`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/login`,
         { email, password }
       );
 

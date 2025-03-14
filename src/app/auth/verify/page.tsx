@@ -129,13 +129,10 @@ export default function Verify() {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/verify-email`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/verify-email`,
         { id: userId, token: otp }
       );
-      console.log("Verification successful:", response.data);
-      // Setelah verifikasi berhasil, hapus flag agar halaman ini tidak dapat diakses lagi.
-      sessionStorage.clear(); // atau sessionStorage.removeItem("allowVerify") jika hanya flag tersebut.
-      // Redirect ke halaman login (atau dashboard jika diinginkan)
+      sessionStorage.clear();
       window.location.href = "/auth/login";
     } catch (error: unknown) {
       console.error("Verification error:", error);
@@ -225,7 +222,7 @@ export default function Verify() {
                 </button>
                 <div className="mt-4 text-center">
                   <p className="text-sm text-gray-600">
-                    Didn't receive the code?{" "}
+                    Didn&apos;t receive the code?{" "}
                     {canResend ? (
                       <button
                         onClick={handleResendCode}

@@ -11,19 +11,16 @@ export default function Footer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleClick = () => {
-    // Selalu tampilkan modal konfirmasi
     setIsModalOpen(true);
   };
 
   const handleConfirmYes = () => {
-    // Jika format tersedia, lanjutkan ke halaman ticket
     setIsModalOpen(false);
     router.push(`/dashboard/events/create/ticket?format=${formatParam}`);
   };
 
   const handleConfirmNo = () => {
     setIsModalOpen(false);
-    // Jika tidak ada format, scroll ke Location Type untuk memilihnya
     const locationSection = document.getElementById("location-type");
     if (locationSection) {
       locationSection.scrollIntoView({ behavior: "smooth" });

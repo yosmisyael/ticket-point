@@ -7,8 +7,10 @@ import Footer from "@/components/fragments/dashboard/Footer";
 import DatePicker from "@/components/ui/DatePicker";
 import BannerUpload from "@/components/ui/BannerUpload";
 import { DateRange } from "react-day-picker";
+import AxiosInstance from "@/service/api";
+import {useRouter} from "next/navigation";
 
-type LocationFormat = 'ofsite' | 'online' | 'hybrid';
+type LocationFormat = 'onsite' | 'online' | 'hybrid';
 
 interface LocationDetails {
   physicalLocation: string;
@@ -55,6 +57,20 @@ const generateMapEmbedUrl = (address: string) => {
 };
 
 export default function CreateEvent() {
+  // Validation error state
+  const [validationErrors, setValidationErrors] = useState<Array<{
+    code: string;
+    message: string;
+    path: string[];
+  }>>([]);
+
+  // helper validation error
+  const getErrorMessage = (path: string[]) => {
+    const error = validationErrors.find((err) => JSON.stringify(err.path) === JSON.stringify(path));
+    return error ? error.message : null;
+  };
+
+  const router = useRouter();
   // Default locationFormat = 'hybrid'
   const [locationFormat, setLocationFormat] = useState<LocationFormat>('hybrid');
   const [isOpen, setIsOpen] = useState(false);
@@ -63,6 +79,7 @@ export default function CreateEvent() {
     onlinePlatform: '',
     meetingLink: ''
   });
+
   // State untuk menandai apakah alamat sudah disimpan (hanya 1 map)
   const [addressSaved, setAddressSaved] = useState(false);
 
@@ -143,7 +160,7 @@ export default function CreateEvent() {
 
   const updateAgendaItem = (id: number, field: keyof AgendaItem, value: string) => {
     setAgendaItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, [field]: value } : item))
+        prev.map(item => (item.id === id ? { ...item, [field]: value } : item))
     );
   };
 
@@ -165,7 +182,6 @@ export default function CreateEvent() {
     );
   };
 
-  // Format nilai input tanggal berdasarkan rentang yang dipilih
   const displayValue = eventDate
     ? eventDate.from && eventDate.to
       ? `${eventDate.from.toLocaleDateString("en-GB")} - ${eventDate.to.toLocaleDateString("en-GB")}`
@@ -177,7 +193,7 @@ export default function CreateEvent() {
   // Render input lokasi berdasarkan tipe event
   const renderLocationInput = () => {
     switch (locationFormat) {
-      case 'ofsite':
+      case 'onsite':
         return (
           <div className="space-y-4">
             <label
@@ -397,6 +413,88 @@ export default function CreateEvent() {
     }
   };
 
+  // Title
+  const [title, setTitle] = useState('')
+
+  const handleTitleChange = (title: string) => {
+    setTitle(title)
+  };
+
+  // Descrioption
+  const [desc, setDesc] = useState('')
+
+  const handleDescChange = (desc: string) => {
+    setDesc(desc)
+  };
+
+  // Submission
+  const handleSubmit = async () => {
+    try {
+      const requestData = {
+        event: {
+          title: title,
+          description: desc,
+          startDate: eventDate?.from?.toISOString().split('T')[0],
+          endDate: eventDate?.to?.toISOString().split('T')[0],
+          startTime: Math.floor((eventDate?.from?.getTime() || 0) / 1000),
+          endTime: Math.floor((eventDate?.to?.getTime() || 0) / 1000),
+          format: {
+            type: locationFormat.toUpperCase(),
+            onsite: {
+              venue: locationDetails.physicalLocation,
+              address: locationDetails.physicalLocation,
+              latitude: 37.7749,
+              longitude: -122.4194,
+              mapUrl: `https://maps.example.com/?q=${37.7749},${-122.4194}`,
+            },
+            online: {
+              platform: locationDetails.onlinePlatform,
+              platformUrl: locationDetails.meetingLink,
+            },
+          },
+          category: categories.map(cat => cat.name).join(', '),
+          additionalInfo: {
+            agenda: {
+              items: agendaItems.map(item => {
+                const today = new Date().toISOString().split('T')[0];
+                const startDateTime = `${today}T${item.startTime}:00`;
+                const endDateTime = `${today}T${item.endTime}:00`;
+                const startTime = Math.floor(new Date(startDateTime).getTime() / 1000);
+                const endTime = Math.floor(new Date(endDateTime).getTime() / 1000);
+                return {
+                  startTime,
+                  endTime,
+                  title: item.agenda,
+                };
+              }),
+            },
+            faq: faqs.map(faq => ({
+              question: faq.question,
+              answer: faq.answer,
+            })),
+          },
+        },
+      };
+
+      const user = JSON.parse(localStorage.getItem("user") as string);
+      const response = await AxiosInstance.post('/api/events', requestData, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      console.log(response);
+      router.push(`/dashboard/events/${response.data.data.id}/create/ticket?format=${locationFormat.toUpperCase()}`);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        // Set validation errors from the backend
+        setValidationErrors(error.response.data);
+      } else {
+        console.error('Error creating event:', error);
+      }
+    }
+  };
+
   return (
     <>
       <div className="container mx-auto p-4 select-none">
@@ -406,7 +504,7 @@ export default function CreateEvent() {
           <section className="mt-10 border-2 border-mid-light rounded-xl w-full md:w-2/3 p-5 hover:border-primary-mid mx-auto">
             <BannerUpload />
             <h2 className="mt-8 text-2xl font-semibold">Event Overview</h2>
-            <p className="text-base font-light mt-3">Create your event's first impression</p>
+            <p className="text-base font-light mt-3">Create your event&apos;s first impression</p>
             <div className="mt-6">
               <label htmlFor="event-title" className="block mb-2 text-lg font-medium text-dark">
                 Event Title
@@ -416,6 +514,7 @@ export default function CreateEvent() {
                 id="event-title"
                 placeholder="Enter Event Name"
                 className="block w-full p-4 text-dark border border-mid-dark rounded-lg bg-light text-base focus:outline-none"
+                onChange={(e) => handleTitleChange(e.target.value)}
               />
             </div>
             <div className="mt-6">
@@ -424,6 +523,7 @@ export default function CreateEvent() {
               </label>
               <textarea
                 id="description"
+                onChange={(e) => handleDescChange(e.target.value)}
                 rows={4}
                 placeholder="Write event description here"
                 className="block w-full p-4 text-dark border border-mid-dark rounded-lg bg-light text-base focus:outline-none"
@@ -467,6 +567,7 @@ export default function CreateEvent() {
                   Start time
                 </label>
                 <input
+
                   type="time"
                   id="start-time"
                   className="bg-gray-50 border border-mid-dark text-dark text-sm rounded-lg focus:outline-none block w-full p-2.5"
@@ -492,11 +593,11 @@ export default function CreateEvent() {
             <h2 className="text-2xl font-semibold">Event Type</h2>
             <div className="mt-4 flex flex-wrap gap-4">
               <button
-                onClick={() => handleLocationFormatChange('ofsite')}
+                onClick={() => handleLocationFormatChange('onsite')}
                 className={`
                   px-4 py-2 rounded-lg transition-colors
                   ${
-                    locationFormat === 'ofsite'
+                    locationFormat === 'onsite'
                       ? 'bg-primary-mid text-white'
                       : 'bg-gray-100 text-dark hover:bg-primary-mid hover:text-white'
                   }
@@ -504,7 +605,7 @@ export default function CreateEvent() {
               >
                 <div className="flex items-center gap-2">
                   <MapPinHouse size={20} />
-                  Ofsite
+                  Onsite
                 </div>
               </button>
               <button
@@ -772,9 +873,12 @@ export default function CreateEvent() {
               Add question
             </button>
           </section>
+          <button
+              className="bg-primary-mid text-white px-4 py-2 rounded-4xl w-fit ms-auto"
+              onClick={() => handleSubmit()}>Save and Continue
+          </button>
         </div>
       </div>
-      <Footer />
     </>
   );
 }

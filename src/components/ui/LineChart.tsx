@@ -33,7 +33,7 @@ const MyLineChart = ({ label, data }: Props) => {
         labels: label,
         datasets: [
             {
-                label: 'Penjualan',
+                label: 'Salles',
                 data: data,
                 backgroundColor: 'rgba(77, 171, 245, 0.2)',
                 borderColor: 'rgb(77, 171, 245)',
@@ -56,7 +56,7 @@ const MyLineChart = ({ label, data }: Props) => {
             },
             title: {
                 display: true,
-                text: 'Grafik Penjualan 2023',
+                text: 'Salles Graph',
             },
         },
 

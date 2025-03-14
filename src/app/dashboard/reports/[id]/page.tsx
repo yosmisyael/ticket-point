@@ -66,12 +66,15 @@ export default function DetailReport() {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const jsonData = res.data;
+
                 // Kelompokkan data kehadiran per jam
                 const attendanceByHour: { [key: string]: number } = {};
                 jsonData.data.attendances.forEach((attendance: any) => {
-                    const date = new Date(attendance.checkinDate);
-                    const hour = date.getUTCHours(); // Ambil jam dalam format UTC
-                    attendanceByHour[hour] = (attendanceByHour[hour] || 0) + 1; // Tambah jumlah kehadiran
+                    if (attendance.checkinDate && attendance.isCheckin == true) { // Pastikan is_checkin true
+                        const date = new Date(attendance.checkinDate);
+                        const hour = date.getUTCHours(); // Ambil jam dalam format UTC
+                        attendanceByHour[hour] = (attendanceByHour[hour] || 0) + 1; // Tambah jumlah kehadiran
+                    }
                 });
 
                 // Konversi objek menjadi array untuk digunakan dalam grafik
@@ -83,6 +86,7 @@ export default function DetailReport() {
         }
         fetchAttendance();
     }, [token, eventId]);
+
 
     // Ambil data transaksi berdasarkan transactionTime
     useEffect(() => {

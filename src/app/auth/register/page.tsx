@@ -98,35 +98,34 @@ export default function Register() {
     let valid = true;
     const newErrors = { name: "", email: "", password: "" };
 
-    if (name.trim() === "") {
-      newErrors.name = "Nama lengkap harus diisi";
-      valid = false;
-    }
-    if (email.trim() === "") {
-      newErrors.email = "Email harus diisi";
-      valid = false;
-    }
-    if (password.trim() === "") {
-      newErrors.password = "Password harus diisi";
-      valid = false;
-    } else if (
-      !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)
-    ) {
-      newErrors.password =
-        "Password minimal 8 karakter, terdapat huruf kapital, angka, dan simbol";
-      valid = false;
-    }
+    // if (name.trim() === "") {
+    //   newErrors.name = "Nama lengkap harus diisi";
+    //   valid = false;
+    // }
+    // if (email.trim() === "") {
+    //   newErrors.email = "Email harus diisi";
+    //   valid = false;
+    // }
+    // if (password.trim() === "") {
+    //   newErrors.password = "Password harus diisi";
+    //   valid = false;
+    // } else if (
+    //   !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)
+    // ) {
+    //   newErrors.password =
+    //     "Password minimal 8 karakter, terdapat huruf kapital, angka, dan simbol";
+    //   valid = false;
+    // }
     setErrors(newErrors);
     if (!valid) return;
 
     setLoading(true);
     try {
-      // Registrasi user
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users`,
+        "http://localhost:3100/api/users",
         { name, email, password }
       );
-      // Contoh respons: { data: { id, email, name } }
+      console.log(name, email, password)
       const userId = response.data.data.id;
       // Set flag agar OTP page bisa diakses (hanya untuk user yang baru register)
       sessionStorage.setItem("allowVerify", "true");

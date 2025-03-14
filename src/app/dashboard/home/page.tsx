@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/CardEvent";
+import AxiosInstance from "../../../service/api";
 
 // Helper function untuk mengubah string ke Title Case.
 function toTitleCase(str: string): string {
@@ -46,13 +47,16 @@ export default function DashboardHome() {
     async function fetchEvents() {
       if (!userId) return;
       try {
-        const res = await fetch(`http://localhost:3000/api/events/search?organizer=${userId}`);
-        if (!res.ok) {
+        const response = await AxiosInstance(`/api/events/owner/${userId}`);
+
+        if (response.status !== 200) {
           throw new Error("Failed to fetch events");
         }
-        const data = await res.json();
-        if (data.message === "success") {
-          setEvents(data.data);
+
+        const payload = response.data;
+        console.log(payload);
+        if (payload.message === "success") {
+          setEvents(payload.data);
         } else {
           setError("Failed to fetch events");
         }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Poppins } from "next/font/google";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import AxiosInstance from "@/service/api";
 
 const poppins = Poppins({
   weight: ["200", "400", "800"],
@@ -87,7 +88,7 @@ export default function Verify() {
   const [userId, setUserId] = useState<number | null>(null);
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [resendTimer, setResendTimer] = useState(30);
+  const [resendTimer, setResendTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
   // Cek apakah user sudah login atau tidak berasal dari register.
@@ -128,8 +129,8 @@ export default function Verify() {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/verify-email`,
+      const response = await AxiosInstance.post(
+        '/api/users/verify-email',
         { id: userId, token: otp }
       );
       sessionStorage.clear();
@@ -161,7 +162,7 @@ export default function Verify() {
     setIsLoading(true);
     try {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"}/users/request-token`,
+        '/api/users/request-token',
         { email }
       );
       alert("OTP has been resent.");

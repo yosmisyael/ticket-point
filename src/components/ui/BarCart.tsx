@@ -12,7 +12,6 @@ import {
   Legend,
 } from 'chart.js';
 
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -22,25 +21,24 @@ ChartJS.register(
   Legend
 );
 
-const MyBarChart = () => {
+type Props = {
+  label: string[];
+  data: number[];
+};
 
-  const data = {
-    labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'],
+const MyBarChart = ({ label, data }: Props) => {
+  const chartData = {
+    labels: label, // Menggunakan label yang diterima
     datasets: [
       {
-        label: 'Penjualan',
-        data: [65, 59, 80, 81, 56, 55],
-        backgroundColor: [
-          'rgb(77, 171, 245, 0.2)',
-        ],
-        borderColor: [
-          'rgb(77, 171, 245, 1)',
-        ],
+        label: 'Total attandance',
+        data: data, // Menggunakan data yang diterima
+        backgroundColor: 'rgba(77, 171, 245, 0.2)',
+        borderColor: 'rgba(77, 171, 245, 1)',
         borderWidth: 1,
       },
     ],
   };
-
 
   const options = {
     responsive: true,
@@ -50,12 +48,23 @@ const MyBarChart = () => {
       },
       title: {
         display: true,
-        text: 'Grafik Penjualan 2023',
+        text: 'Attendance Graph by Hour',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true, // Memastikan sumbu Y mulai dari 0
+        ticks: {
+          stepSize: 1, // Menentukan langkah untuk tidak menampilkan desimal
+          callback: function(value: number) {
+            return Number.isInteger(value) ? value : ''; // Hanya kembalikan integer
+          },
+        },
       },
     },
   };
 
-  return <Bar data={data} options={options} />;
+  return <Bar data={chartData} options={options} />;
 };
 
 export default MyBarChart;

@@ -23,15 +23,18 @@ ChartJS.register(
     Tooltip,
     Legend
 );
+type Props = {
+    label: string[];
+    data: number[];
+};
+const MyLineChart = ({ label, data }: Props) => {
 
-const MyLineChart = () => {
-
-    const data = {
-        labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'],
+    const lineChart = {
+        labels: label,
         datasets: [
             {
                 label: 'Penjualan',
-                data: [65, 59, 80, 81, 56, 55],
+                data: data,
                 backgroundColor: 'rgba(77, 171, 245, 0.2)',
                 borderColor: 'rgb(77, 171, 245)',
                 borderWidth: 2,
@@ -56,14 +59,21 @@ const MyLineChart = () => {
                 text: 'Grafik Penjualan 2023',
             },
         },
+
         scales: {
             y: {
                 beginAtZero: true,
+                ticks: {
+                    stepSize: 1,
+                    callback: function (value: number) {
+                        return Number.isInteger(value) ? value : '';
+                    },
+                },
             },
         },
     };
 
-    return <Line data={data} options={options} />;
+    return <Line data={lineChart} options={options} />;
 };
 
 export default MyLineChart;

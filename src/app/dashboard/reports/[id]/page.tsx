@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import AxiosInstance from "@/service/api";
 
 interface EventType {
     id: number;
@@ -62,7 +63,7 @@ export default function DetailReport() {
         async function fetchAttendance() {
             if (!token || !eventId) return;
             try {
-                const res = await axios.get(`http://localhost:3000/api/tickets/attendances/${eventId}`, {
+                const res = await axios(`/api/tickets/attendances/${eventId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const jsonData = res.data;
@@ -93,7 +94,7 @@ export default function DetailReport() {
         async function fetchTransactionsByDate() {
             if (!token || !eventId) return;
             try {
-                const res = await axios.get(`http://localhost:3000/api/tickets/attendances/${eventId}`, {
+                const res = await AxiosInstance(`/api/tickets/attendances/${eventId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const jsonData = res.data;
@@ -123,7 +124,7 @@ export default function DetailReport() {
         async function fetchEventById() {
             if (!userId || !eventId || !token) return;
             try {
-                const res = await axios.get(`http://localhost:3000/api/events/${eventId}`, {
+                const res = await AxiosInstance(`/api/events/${eventId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 if (res.status === 200) {

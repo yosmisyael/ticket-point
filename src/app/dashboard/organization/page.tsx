@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Image from "next/image";
 import axios from "axios";
+import AxiosInstance from "@/service/api";
 
 type UploadContextType = {
   type: string;
@@ -57,7 +58,7 @@ export default function OrganizationSettings() {
     formData.append("context", JSON.stringify(uploadContext)); // Field untuk konteks
 
     try {
-      const response = await axios.post("http://localhost:3000/api/image/upload", formData, {
+      const response = await AxiosInstance.post("/api/image/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data", // Penting untuk upload file
           Authorization: `Bearer ${token}`,
@@ -125,13 +126,12 @@ export default function OrganizationSettings() {
 
     const organizationData = {
       name: orgName,
-      logo_url: orgLogoUrl, // Gunakan URL gambar yang sudah diunggah
-      website_url: orgWebsite,
+      logoUrl: orgLogoUrl, // Gunakan URL gambar yang sudah diunggah
+      websiteUrl: orgWebsite,
       description: orgDescription,
     };
-
     try {
-      const response = await axios.post("http://localhost:3000/api/organizations", organizationData, {
+      const response = await AxiosInstance.post("/api/organizations", organizationData, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -145,7 +145,8 @@ export default function OrganizationSettings() {
       alert("Terjadi kesalahan saat menyimpan informasi organisasi");
     }
   };
-
+  
+  console.log(orgWebsite)
   const logoPreviewUrl =
     logoMode === "upload" && orgLogoFile
       ? URL.createObjectURL(orgLogoFile)
